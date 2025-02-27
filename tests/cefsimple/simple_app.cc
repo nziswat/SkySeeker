@@ -126,7 +126,7 @@ void SimpleApp::OnContextInitialized() {
   // that instead of the default URL.
   url = command_line->GetSwitchValue("url");
   if (url.empty()) {
-    url = "https://www.google.com";
+    url = "C:/skyseeker/New main/SkySeeker/tests/cefsimple/test.html";
   }
 
   // Views is enabled by default (add `--use-native` to disable).
