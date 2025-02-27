@@ -1,0 +1,189 @@
+﻿
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <base target="_top">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>SkySeeker - Map</title>
+
+    <!--<link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />-->
+    <link rel="icon" href="media/radar.svg" type="image/x-icon" />
+    <link rel="stylesheet" href="map_source/leaflet.css"/>
+    <script src="map_source/leaflet.js"></script>
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        /* Set the size of the map to fill the entire screen */
+        .leaflet-container {
+            min-height: 100vh;
+            max-width: 100%;
+            width: 100%;
+            height: auto;
+            padding: 0;
+            z-index: 0; /* Set the map to be below everything else */
+        }
+
+        /* Style for the buttons */
+        .button-container {
+            text-align: center;
+        }
+
+        .button-container button {
+            background-color: #E8E8E8;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: row; /* Display text after icon */
+            align-items: start;
+            justify-content: left;
+            min-width: fit-content; /* Fixed width for the button */
+            height: 60px; /* Fixed height for the button */
+        }
+
+        .button-container button img {
+            width: 35px; /* Fixed width for the image */
+            height: 35px; /* Maintain aspect ratio */
+            padding-right: 10px; /* Space between icon and text */
+        }
+
+        .button-container button span {
+            color: #000000; /* Black text color */
+            font-size: 28px; /* Adjust font size as needed */
+            margin-top: 5px;
+        }
+
+        /* Style for bottom navigation bar */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            background-color: #5B5B5B; /* Grey background color */
+            color: white;
+            padding-top: 1px;
+            padding-bottom: 1px;
+            padding-left: none;
+            padding-right: none;
+            z-index: 2;
+        }
+
+        header ul {
+            list-style-type: none;
+            padding-left: 100px;
+            padding-right: 100px;
+        }
+
+        /* Style for header links */
+        header a {
+            color: black;
+            text-decoration: none;
+            font-size: 11px; /* Font size for header links */
+            font-family: Vag;
+        }
+
+        .center-justified {
+            margin: 0 auto;
+            width: auto;
+            max-width: 50em;
+            min-width: 0;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+
+</head>
+ <body>
+
+
+
+     <div id="map" style="max-width: 100%; max-height: 100vh; "></div>
+     <script>
+
+         /* Edit location to first location recieved */
+         const map = L.map('map').setView([27.947954, -82.466856], 10);
+
+         const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+             maxZoom: 19,
+             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+         }).addTo(map);
+
+         /* This section was already in the leaflet as an example to show other features */
+         /*
+         const marker = L.marker([51.5, -0.09]).addTo(map)
+             .bindPopup('<b>Hello world!</b><br />I am a popup.').openPopup();
+
+         const circle = L.circle([51.508, -0.11], {
+             color: 'red',
+             fillColor: '#f03',
+             fillOpacity: 0.5,
+             radius: 500
+         }).addTo(map).bindPopup('I am a circle.');
+
+         const polygon = L.polygon([
+             [51.509, -0.08],
+             [51.503, -0.06],
+             [51.51, -0.047]
+         ]).addTo(map).bindPopup('I am a polygon.');
+
+
+         const popup = L.popup()
+             .setLatLng([51.513, -0.09])
+             .setContent('I am a standalone popup.')
+             .openOn(map);
+
+         function onMapClick(e) {
+             popup
+                 .setLatLng(e.latlng)
+                 .setContent(`You clicked the map at ${e.latlng.toString()}`)
+                 .openOn(map);
+         }
+         */
+
+         map.on('click', onMapClick);
+
+     </script>
+
+     <!-- Header -->
+     <header>
+        <ul>
+            <div class="center-justified">
+            <div class="row">
+
+                <!-- Map Button -->
+                <li><a href="#"><div class="button-container"><button>
+                    <img src="media/map.svg" alt="Map Button Icon">
+                    <span>Map</span>
+                </button></div></a></li>
+
+                <!-- Log Button -->
+                <li><a href="#"><div class="button-container"><button>
+                    <img src="media/archive.svg" alt="Log Icon">
+                    <span>Log</span>
+                </button></div></a></li>
+
+                <!-- Data Button -->
+                <li><a href="#"><div class="button-container"><button>
+                    <img src="media/clipboard.svg" alt="Data Icon">
+                    <span>Data</span>
+                </button></div></a</li>
+
+            </div>
+            </div>
+        </ul>
+     </header>
+
+
+ </body>
+</html>
