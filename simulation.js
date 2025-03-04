@@ -1,6 +1,6 @@
 // simulation.js
 
-// Doesnt rotate and heading doesnt update correctly
+// Doesnt rotate
 
 // Sleep function 
 function sleep(ms) {
@@ -19,7 +19,7 @@ async function circle(plane, a, b, r, n, loops, s, movingMarker) {
         plane.lat = b + r * Math.sin(angle);
 
         // Update plane's heading based on the current angle
-        const heading = (angle * 180 / Math.PI) % 360;  // Convert the angle directly to degrees
+        const heading = (360 - (angle * 180 / Math.PI) % 360) % 360;  // Convert the angle directly to degrees
         plane.head = heading;
 
         // Move the plane to new position
@@ -27,7 +27,7 @@ async function circle(plane, a, b, r, n, loops, s, movingMarker) {
             duration: s/2 * 1000, // Duration of the move in milliseconds (Note: s/2 to show each individual spot)
         });
 
-        // Apply rotation (adjust heading by -45 degrees to match the up-right facing icon)
+        // Apply rotation (adjust heading by -45 degrees to match the up-right facing icon) 
         //rotateMarker(movingMarker, plane.head);
 
         // Display current info
