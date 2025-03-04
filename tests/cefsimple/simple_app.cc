@@ -1,6 +1,4 @@
-// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
-// reserved. Use of this source code is governed by a BSD-style license that
-// can be found in the LICENSE file.
+//This is SkySeeker's browser file
 
 #include "tests/cefsimple/simple_app.h"
 
@@ -107,6 +105,7 @@ void SimpleApp::OnContextInitialized() {
   CefRefPtr<CefCommandLine> command_line =
       CefCommandLine::GetGlobalCommandLine();
 
+
   // Check if Alloy style will be used.
   cef_runtime_style_t runtime_style = CEF_RUNTIME_STYLE_DEFAULT;
   bool use_alloy_style = command_line->HasSwitch("use-alloy-style");
@@ -126,7 +125,10 @@ void SimpleApp::OnContextInitialized() {
   // that instead of the default URL.
   url = command_line->GetSwitchValue("url");
   if (url.empty()) {
-    url = "C:/skyseeker/New main/SkySeeker/tests/cefsimple/test.html";
+    //url = "F:/SkySeeker/HTML/SkySeeker/HTMLPage1.html";
+
+      url = "F:/SkySeeker/SkySeeker/tests/cefsimple/test.html";
+
   }
 
   // Views is enabled by default (add `--use-native` to disable).

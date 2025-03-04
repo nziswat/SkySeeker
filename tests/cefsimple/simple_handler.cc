@@ -1,6 +1,4 @@
-// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
-// reserved. Use of this source code is governed by a BSD-style license that
-// can be found in the LICENSE file.
+// This is SkySeeker's Client file, aka the front end.
 
 #include "tests/cefsimple/simple_handler.h"
 
@@ -28,15 +26,25 @@ std::string GetDataURI(const std::string& data, const std::string& mime_type) {
 
 }  // namespace
 
-SimpleHandler::SimpleHandler(bool is_alloy_style)
+
+SimpleHandler::SimpleHandler(bool is_alloy_style) //constructor
     : is_alloy_style_(is_alloy_style) {
   DCHECK(!g_instance);
   g_instance = this;
+  // init message router with default config
+  CefMessageRouterConfig config;
+  message_router_ = CefMessageRouterBrowserSide::Create(config);
+
+  //save message handler, then register it to the router
+  message_handler_.reset(new MessageHandler());
+  message_router_->AddHandler(message_handler_.get(), false); 
 }
 
 SimpleHandler::~SimpleHandler() {
   g_instance = nullptr;
 }
+
+
 
 // static
 SimpleHandler* SimpleHandler::GetInstance() {
@@ -58,6 +66,7 @@ void SimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
     PlatformTitleChange(browser, title);
   }
 }
+
 
 void SimpleHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();

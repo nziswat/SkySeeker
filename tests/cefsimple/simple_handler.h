@@ -1,6 +1,4 @@
-// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
-// reserved. Use of this source code is governed by a BSD-style license that
-// can be found in the LICENSE file.
+// This is SkySeeker's Client file, aka the front end.
 
 #ifndef CEF_TESTS_CEFSIMPLE_SIMPLE_HANDLER_H_
 #define CEF_TESTS_CEFSIMPLE_SIMPLE_HANDLER_H_
@@ -8,14 +6,47 @@
 #include <list>
 
 #include "include/cef_client.h"
+#include "include/wrapper/cef_message_router.h"
+#include "include/cef_render_process_handler.h"
+
+class MessageHandler : public CefMessageRouterBrowserSide::Handler {
+public:
+    MessageHandler() {}
+
+    // Called when a message is received from JavaScript
+    bool OnQuery(CefRefPtr<CefBrowser> browser,
+        CefRefPtr<CefFrame> frame,
+        int64_t query_id,
+        const CefString& request,
+        bool persistent,
+        CefRefPtr<Callback> callback) {
+        if (request == "increment") {
+            // Handle the "increment" message
+            static int counter = 0;
+            counter++;
+            callback->Success(std::to_string(counter));
+            return true;
+        }
+
+        // Unhandled message
+        return false;
+    }
+    // TODO: fix this crap
+    //IMPLEMENT_REFCOUNTING(MessageHandler);
+};
+
 
 class SimpleHandler : public CefClient,
                       public CefDisplayHandler,
                       public CefLifeSpanHandler,
-                      public CefLoadHandler {
+                      public CefLoadHandler,
+                      public CefRenderProcessHandler{ // Front end, thus use Render and not browser
  public:
   explicit SimpleHandler(bool is_alloy_style);
   ~SimpleHandler() override;
+
+
+
 
   // Provide access to the single global instance of this object.
   static SimpleHandler* GetInstance();
@@ -24,6 +55,17 @@ class SimpleHandler : public CefClient,
   CefRefPtr<CefDisplayHandler> GetDisplayHandler() override { return this; }
   CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
   CefRefPtr<CefLoadHandler> GetLoadHandler() override { return this; }
+  CefRefPtr<CefRenderProcessHandler> GetRenderProcessHandler() { return this; }
+
+  // message handling
+  bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefFrame> frame,
+      CefProcessId source_process,
+      CefRefPtr<CefProcessMessage> message){
+      return message_router_->OnProcessMessageReceived(browser, frame, source_process, message);
+  }
+
+
 
   // CefDisplayHandler methods:
   void OnTitleChange(CefRefPtr<CefBrowser> browser,
@@ -62,6 +104,12 @@ class SimpleHandler : public CefClient,
   BrowserList browser_list_;
 
   bool is_closing_ = false;
+
+
+  // save routers for messaging
+  CefRefPtr<CefMessageRouterBrowserSide> message_router_; 
+  std::unique_ptr<CefMessageRouterBrowserSide::Handler> message_handler_;
+
 
   // Include the default reference counting implementation.
   IMPLEMENT_REFCOUNTING(SimpleHandler);
