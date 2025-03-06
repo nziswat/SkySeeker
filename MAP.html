@@ -1,0 +1,125 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map - Demo</title>
+
+    <!-- Set icon -->
+    <link rel="icon" href="media/radar.svg" type="image/x-icon" />
+
+    <!-- Import Stylesheets -->
+    <link rel="stylesheet" href="leaflet/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Script for map and plugin -->
+    <script src="leaflet/leaflet.js"></script>
+    <script src="MovingMarker.js"></script>
+    <script src="rotatedMarker.js"></script>
+
+    <!-- My scripts -->
+    <script src="aircraft.js"></script> <!-- Aircraft class -->
+    <script src="simulation.js"></script> <!-- Simulation logic -->
+
+    <style>
+        /* Ensure the map container has height */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        #map {
+            width: 100%;
+            height: 100vh; /* Full screen height */
+        }
+
+        .leaflet-container {
+            opacity: 0.8;
+        }
+
+        /* Floating table on the left side */
+        #infoTable {
+            position: absolute;
+            top: 300px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 200px;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 5px;
+            text-align: left;
+        }
+
+        th {
+            background: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo-container">
+            <h1 class="header-title">SkySeeker</h1>
+            <img src="planegif.gif" alt="Animated Logo" class="header-gif">
+        </div>
+        <div class="button-container">
+            <button class="button1">Map</button>
+            <button class="button">What's Above Me?</button>
+            <a href="LOG.html"><button class="button">Personal Log</button></a>
+        </div>
+    </header>
+
+    <!-- Floating Table -->
+    <div id="infoTable">
+        <table>
+            <tr><th>Property</th><th>Value</th></tr>
+            <tr><td>ID</td><td id="planeID"></td></tr>
+            <tr><td>Latitude</td><td id="planeLat"></td></tr>
+            <tr><td>Longitude</td><td id="planeLong"></td></tr>
+            <tr><td>Heading</td><td id="planeHead"></td></tr>
+            <tr><td>Altitude</td><td id="planeAlt"></td></tr>
+            <tr><td>Speed</td><td id="planeSpeed"></td></tr>
+        </table>
+    </div>
+
+    <!-- Map container -->
+    <div id="map"></div>
+
+    <script>
+        // Initialize map
+        const map = initializeMap("map", [27.947954, -82.466856], 12); // Default: Tampa
+
+        // Initialize plane icon
+        const planeIcon = L.icon({
+            iconUrl: 'media/plane-icon.svg',
+            iconSize: [40, 40],
+            iconAnchor: [20, 20] // Rotate around the center of the icon
+        });
+
+        // Make an Aircraft object
+        const plane = new Aircraft("Flight123", 27.947954, -82.466856, 0, 30000, 400);
+
+        // Initialize moving marker
+        const movingMarker = L.Marker.movingMarker(
+            [[plane.lat, plane.long]], [0], { icon: planeIcon }
+        ).addTo(map);
+
+        // Create a polyline to track the plane's path
+        const polyline = L.polyline([], { color: 'blue' }).addTo(map);
+
+        // Perform the simulation
+        circle(plane, -82.466856, 27.947954, 0.05, 36, 3, 1, movingMarker, polyline);
+    </script>
+</body>
+</html>

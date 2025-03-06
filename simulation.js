@@ -1,14 +1,20 @@
-// simulation.js
-
-// Doesnt rotate
-
 // Sleep function 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// Function to update the table
+function updateTable(plane) {
+    document.getElementById('planeID').textContent = plane.ID;
+    document.getElementById('planeLat').textContent = plane.lat.toFixed(6);
+    document.getElementById('planeLong').textContent = plane.long.toFixed(6);
+    document.getElementById('planeHead').textContent = plane.head.toFixed(2);
+    document.getElementById('planeAlt').textContent = plane.alt;
+    document.getElementById('planeSpeed').textContent = plane.speed;
+}
+
 // Function to make the plane move in a circle
-async function circle(plane, a, b, r, n, loops, s, movingMarker) {
+async function circle(plane, a, b, r, n, loops, s, movingMarker, polyline, map) {
     for (let i = 0; i < n * loops; i++) {
 
         // Calculate the angle for the current step
@@ -23,15 +29,16 @@ async function circle(plane, a, b, r, n, loops, s, movingMarker) {
         plane.head = heading;
 
         // Move the plane to new position
-        movingMarker.moveTo([plane.lat, plane.long], {
-            duration: s/2 * 1000, // Duration of the move in milliseconds (Note: s/2 to show each individual spot)
-        });
+        movingMarker.setLatLng([plane.lat, plane.long]);
 
-        // Apply rotation (adjust heading by -45 degrees to match the up-right facing icon) 
-        //rotateMarker(movingMarker, plane.head);
+        // Rotate the plane using the RotatedMarker plugin (instead of manually updating CSS)
+        movingMarker.setRotationAngle(plane.head - 45); // Rotate the plane icon based on heading
 
-        // Display current info
-        console.log("Plane position:", plane.lat, plane.long, "Heading:", plane.head);
+        // Update polyline
+        polyline.addLatLng([plane.lat, plane.long]);
+
+        // Update the table with the current information
+        updateTable(plane);
 
         // Wait for the specified time before the next update
         await sleep(s * 1000);
@@ -51,13 +58,3 @@ function initializeMap(containerId, center, zoom) {
 
     return map;
 }
-/*
-// Function to rotate position of the aircraft icon
-function rotateMarker(movingMarker, angle) {
-    const markerElement = movingMarker._icon;
-    if (markerElement) {
-        markerElement.style.transform = `rotate(${angle - 45}deg)`; // Adjust for up-right facing icon
-        markerElement.style.transformOrigin = "50% 50%"; // Ensure rotation happens at the center
-    }
-}
-*/
