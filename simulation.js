@@ -47,8 +47,12 @@ async function circle(plane, a, b, r, n, loops, s, movingMarker, polyline, map) 
 
 // Function to initialize the map
 function initializeMap(containerId, center, zoom) {
+
+    var options = {};
+    options.worldCopyJump = true; // Makes the markers repeat
+
     // Initialize the map
-    const map = L.map(containerId).setView(center, zoom);
+    const map = L.map(containerId, options).setView(center, zoom);
 
     // Add a tile layer
     const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
