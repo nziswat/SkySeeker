@@ -23,5 +23,11 @@
     <ClInclude Include="libusb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="rtl-sdr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rtl-sdr_export.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
