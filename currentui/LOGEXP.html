@@ -21,7 +21,6 @@
   gap: 380px; /* Adds space between the title and buttons */
 }
 
-
 .categories-title {
   font-size: 2em; /* Adjusted font size */
   font-weight: bold;
@@ -47,6 +46,48 @@
   background-color: #cecfd0;
 }
 
+/* Media query for screens above 768px */
+@media (min-width: 768px) {
+  .categories-title {
+    font-size: 1.8em; /* Slightly smaller font size */
+  }
+
+  .subheader {
+    gap: 150px; /* Adjust space between title and buttons */
+  }
+
+  .categories-container {
+    gap: 40px; /* Adjust space between buttons */
+  }
+
+  .catbutton {
+    font-size: 1.4em; /* Slightly smaller font size for buttons */
+  }
+}
+
+/* Media query for screens above 1024px */
+@media (min-width: 1024px) {
+  .categories-title {
+    font-size: 1.6em; /* Further decrease font size */
+  }
+
+  .subheader {
+    gap: 100px; /* Reduce gap as the screen gets larger */
+  }
+
+  .categories-container {
+    gap: 30px; /* Further adjust space between buttons */
+  }
+
+  .catbutton {
+    font-size: 1.2em; /* Further reduce button font size */
+  }
+}
+
+.catbutton:hover {
+  background-color: #cecfd0;
+}
+
 /* Cards Section */
 .cards-container {
     display: flex;
@@ -59,7 +100,7 @@
 .card {
     background-color: #f8f8f8;
     width: 1700px;
-    height: 700px;
+    height: 600px;
     border-radius: 30px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
     display: flex;
@@ -89,7 +130,7 @@
         </div>
         <div class="button-container">
             <a href="MAP.html"><button class="button">Map</button></a>
-            <button class="button">What's Above Me?</button>
+            <a href="WHATSABOVE ME.html"><button class="button">What's Above Me?</button></a>
             <button class="button1">Personal Log</button>
         </div>
     </header>
