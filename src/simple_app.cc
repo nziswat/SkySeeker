@@ -127,7 +127,7 @@ void SimpleApp::OnContextInitialized() {
   // that instead of the default URL.
   url = command_line->GetSwitchValue("url");
   if (url.empty()) {
-      std::filesystem::path htmlPath = std::filesystem::current_path() / "html/test.html";
+      std::filesystem::path htmlPath = std::filesystem::current_path() / "html/MAP.html";
       url = "file://" + htmlPath.generic_string();
   }
 

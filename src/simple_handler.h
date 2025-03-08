@@ -11,28 +11,30 @@
 
 class MessageHandler : public CefMessageRouterBrowserSide::Handler {
 public:
-    MessageHandler() {}
-
-    // Called when a message is received from JavaScript
     bool OnQuery(CefRefPtr<CefBrowser> browser,
         CefRefPtr<CefFrame> frame,
         int64_t query_id,
         const CefString& request,
         bool persistent,
-        CefRefPtr<Callback> callback) {
-        if (request == "increment") {
-            // Handle the "increment" message
-            static int counter = 0;
-            counter++;
-            callback->Success(std::to_string(counter));
+        CefRefPtr<Callback> callback) override {
+        if (request == "spawn_aircraft") {
+            // Sample aircraft data
+            std::string json = R"({
+                "ID": "Flight777",
+                "lat": 27.95,
+                "long": -82.45,
+                "head": 90,
+                "alt": 32000,
+                "speed": 450
+            })";
+
+            callback->Success(json);
             return true;
         }
-
-        // Unhandled message
         return false;
     }
-    // TODO: fix this crap
-    //IMPLEMENT_REFCOUNTING(MessageHandler);
+    //
+    //IMPLEMENT_REFCOUNTING(MyHandler);
 };
 
 

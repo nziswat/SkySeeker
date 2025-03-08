@@ -6,6 +6,8 @@
 # Source files.
 #
 
+
+
 # cefsimple sources.
 set(CEFSIMPLE_SRCS
   simple_app.cc
@@ -244,7 +246,7 @@ if(OS_WINDOWS)
   # Copy binary and resource files to the target output directory.
   COPY_FILES("${CEF_TARGET}" "${CEF_BINARY_FILES}" "${CEF_BINARY_DIR}" "${CEF_TARGET_OUT_DIR}")
   COPY_FILES("${CEF_TARGET}" "${CEF_RESOURCE_FILES}" "${CEF_RESOURCE_DIR}" "${CEF_TARGET_OUT_DIR}")
-  #copy HTML folder too
+  #copy HTML folder too except this doesn't actually work most of the time 
   file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/html" DESTINATION "${CEF_TARGET_OUT_DIR}")
 
   if(USE_SANDBOX)
