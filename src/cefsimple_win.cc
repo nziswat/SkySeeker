@@ -4,8 +4,8 @@
 
 #include "include/cef_command_line.h"
 #include "include/cef_sandbox_win.h"
-#include "tests/cefsimple/simple_app.h"
-#include "tests/cefsimple/renderer.h"
+#include "src/simple_app.h"
+#include "src/renderer.h"
 
 // When generating projects with CMake the CEF_USE_SANDBOX value will be defined
 // automatically if using the required compiler version. Pass -DUSE_SANDBOX=OFF

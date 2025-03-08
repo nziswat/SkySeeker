@@ -1,15 +1,17 @@
 //This is SkySeeker's browser file
 
-#include "tests/cefsimple/simple_app.h"
+#include "src/simple_app.h"
 
 #include <string>
+#include <filesystem>
+
 
 #include "include/cef_browser.h"
 #include "include/cef_command_line.h"
 #include "include/views/cef_browser_view.h"
 #include "include/views/cef_window.h"
 #include "include/wrapper/cef_helpers.h"
-#include "tests/cefsimple/simple_handler.h"
+#include "src/simple_handler.h"
 
 namespace {
 
@@ -125,10 +127,8 @@ void SimpleApp::OnContextInitialized() {
   // that instead of the default URL.
   url = command_line->GetSwitchValue("url");
   if (url.empty()) {
-    //url = "F:/SkySeeker/HTML/SkySeeker/HTMLPage1.html";
-
-      url = "F:/SkySeeker/SkySeeker/tests/cefsimple/test.html";
-
+      std::filesystem::path htmlPath = std::filesystem::current_path() / "html/test.html";
+      url = "file://" + htmlPath.generic_string();
   }
 
   // Views is enabled by default (add `--use-native` to disable).

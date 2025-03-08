@@ -1,6 +1,6 @@
 // This is SkySeeker's Client file, aka the front end.
 
-#include "tests/cefsimple/simple_handler.h"
+#include "src/simple_handler.h"
 
 #include <sstream>
 #include <string>

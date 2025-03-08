@@ -12,7 +12,8 @@ set(CEFSIMPLE_SRCS
   simple_app.h
   simple_handler.cc
   simple_handler.h
-    "renderer.cpp" "renderer.h")
+  renderer.cpp
+  renderer.h)
 set(CEFSIMPLE_SRCS_LINUX
   cefsimple_linux.cc
   simple_handler_linux.cc
@@ -30,7 +31,7 @@ APPEND_PLATFORM_SOURCES(CEFSIMPLE_SRCS)
 source_group(cefsimple FILES ${CEFSIMPLE_SRCS})
 
 set(CEFSIMPLE_WIN_SRCS_WINDOWS
-  win/cefsimple.rc
+  win/SkySeeker.rc
   )
 APPEND_PLATFORM_SOURCES(CEFSIMPLE_WIN_SRCS)
 source_group(cefsimple\\\\win FILES ${CEFSIMPLE_WIN_SRCS})
@@ -73,10 +74,10 @@ set(CEFSIMPLE_RESOURCES_SRCS
 #
 
 # Target executable names.
-set(CEF_TARGET "cefsimple")
+set(CEF_TARGET "SkySeeker")
 if(OS_MAC)
-  set(CEF_HELPER_TARGET "cefsimple_Helper")
-  set(CEF_HELPER_OUTPUT_NAME "cefsimple Helper")
+  set(CEF_HELPER_TARGET "SkySeeker_Helper")
+  set(CEF_HELPER_OUTPUT_NAME "SkySeeker Helper")
 else()
   # Logical target used to link the libcef library.
   ADD_LOGICAL_TARGET("libcef_lib" "${CEF_LIB_DEBUG}" "${CEF_LIB_RELEASE}")
@@ -87,7 +88,7 @@ SET_CEF_TARGET_OUT_DIR()
 
 
 #
-# Linux configuration.
+# Linux configuration. NOT CONFIGURED
 #
 
 if(OS_LINUX)
@@ -115,7 +116,7 @@ endif()
 
 
 #
-# Mac OS X configuration.
+# Mac OS X configuration. NOT CONFIGURED
 #
 
 if(OS_MAC)
@@ -243,6 +244,8 @@ if(OS_WINDOWS)
   # Copy binary and resource files to the target output directory.
   COPY_FILES("${CEF_TARGET}" "${CEF_BINARY_FILES}" "${CEF_BINARY_DIR}" "${CEF_TARGET_OUT_DIR}")
   COPY_FILES("${CEF_TARGET}" "${CEF_RESOURCE_FILES}" "${CEF_RESOURCE_DIR}" "${CEF_TARGET_OUT_DIR}")
+  #copy HTML folder too
+  file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/html" DESTINATION "${CEF_TARGET_OUT_DIR}")
 
   if(USE_SANDBOX)
     # Set LPAC ACLs required for Windows sandbox support.
