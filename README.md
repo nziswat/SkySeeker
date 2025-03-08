@@ -7,10 +7,14 @@ Keen-eyed browsers of this repo will notice that this doesn't actually contain a
 Specifically, this project is built (as of 2/28/2025) with the compiled windows CEF binaries, the standard distribution, version 134.1.2+gb3fe8ad
 You can download that here: https://cef-builds.spotifycdn.com/cef_binary_133.4.2%2Bg0852ba6%2Bchromium-133.0.6943.127_windows64.tar.bz2
 
-Once you've downloaded the files, all you need to do is extract the contents of the archive over wherever you have this repo downloaded. DO NOT REPLACE ANY FILES
+Once you've downloaded the files, you only need to extract include, libcef_dll and resources. DO NOT OVERWRITE ANY FILES (though you should not be prompted to anyway)
 
 If you're an advanced user (NDR) then I'm sure you can figure out the rest, if not;
 Install Visual Studio, not visual studio code. Make sure you also install the Cmake addon alongside your VS.
 In Visual Studio, simply open SkySeeker as a folder and VS /should/ automatically know how to build the files from there
-Select whatever configuration you wish (probably just x64-Release) and build cefsimple.exe
-The build target will probably chance closer to release.
+Select whatever configuration you wish (probably just x64-Release) and build SkySeeker.exe
+the output can be found in 'out\build\x64-Release\src\Release\'
+
+Frontend coders:
+You should place your files in 'src/html'. CMake should automatically copy the folder on build, but sometimes it doesn't
+if it really doesn't want to copy for some reason, you can always manually copy the html folder into the output.
