@@ -9,35 +9,6 @@
 #include "include/wrapper/cef_message_router.h"
 #include "include/cef_render_process_handler.h"
 
-class MessageHandler : public CefMessageRouterBrowserSide::Handler {
-public:
-    bool OnQuery(CefRefPtr<CefBrowser> browser,
-        CefRefPtr<CefFrame> frame,
-        int64_t query_id,
-        const CefString& request,
-        bool persistent,
-        CefRefPtr<Callback> callback) override {
-        if (request == "spawn_aircraft") {
-            // Sample aircraft data
-            std::string json = R"({
-                "ID": "Flight777",
-                "lat": 27.95,
-                "long": -82.45,
-                "head": 90,
-                "alt": 32000,
-                "speed": 450
-            })";
-
-            callback->Success(json);
-            return true;
-        }
-        return false;
-    }
-    //
-    //IMPLEMENT_REFCOUNTING(MyHandler);
-};
-
-
 class SimpleHandler : public CefClient,
                       public CefDisplayHandler,
                       public CefLifeSpanHandler,

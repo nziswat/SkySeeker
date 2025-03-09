@@ -12,6 +12,7 @@
 #include "include/views/cef_window.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_helpers.h"
+#include "src/message_handler.h"
 
 namespace {
 
