@@ -16,7 +16,7 @@ set(CEFSIMPLE_SRCS
   simple_handler.h
   renderer.cpp
   renderer.h
-  message_handler.h)
+  message_handler.h "structs.h")
 set(CEFSIMPLE_SRCS_LINUX
   cefsimple_linux.cc
   simple_handler_linux.cc

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "include/wrapper/cef_message_router.h"
+#include "src/structs.h"
+#include <string>
 
 class MessageHandler : public CefMessageRouterBrowserSide::Handler {
 public:
@@ -22,16 +24,29 @@ public:
             })";
 
 
-            browser->GetMainFrame()->ExecuteJavaScript(
-                "console.log('Hello from C++!');",
-                browser->GetMainFrame()->GetURL(),
-                0);
-
-            callback->Success(json);
+            sendDebug("asdf", browser);
             return true;
         }
         return false;
     }
+
+        void sendPacket(aircraftPacket packet,
+            CefRefPtr<CefBrowser> browser){
+
+            browser->GetMainFrame()->ExecuteJavaScript(
+                "console.log('Hello from C++!');",
+                browser->GetMainFrame()->GetURL(),
+                0);
+    }
+        void sendDebug(std::string debug,
+            CefRefPtr<CefBrowser> browser) {
+
+            browser->GetMainFrame()->ExecuteJavaScript(
+                "debugCall(\"" + debug + " \")",
+                browser->GetMainFrame()->GetURL(),
+                0);
+        }
+
     //
     //IMPLEMENT_REFCOUNTING(MyHandler);
 };
