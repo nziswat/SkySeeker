@@ -29,7 +29,7 @@ typedef int (*RtlSdrReadSync)(rtlsdr_dev_t*, void*, int, int*);
 #define SHORT_MESSAGE_BYTES (SHORT_MESSAGE/8)
 
 //these definitions could possibly be configured
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 1024 * 32
 
 
 struct { //adapted from dump1090
@@ -42,6 +42,7 @@ struct { //adapted from dump1090
 
 
 void calculateMag();
+void detectModeS(uint16_t* m, uint32_t mlen);
 
 int main() {
     HMODULE hDLL = LoadLibrary(L"rtlsdr.dll");
@@ -152,9 +153,14 @@ int main() {
 
         std::memcpy(dataloop.data, buffer, BUFFER_SIZE);
         calculateMag();
+        /*
         std::cout << buffer;
         std::cout << "\n\n\n";
+        */
         std::cout << dataloop.magnitude;
+        
+
+        detectModeS(dataloop.magnitude, BUFFER_SIZE / 2);
 
     }
 
@@ -185,6 +191,110 @@ void calculateMag() {
 
 
 
-// tries to find a ModeS message within magnitude buffer 'm' of 'mlen' size bytes.
+// tries to find a ModeS message within magnitude buffer 'm' of 'mlen' size bytes (which should be BUFFER_SIZE/2 anyway).
 void detectModeS(uint16_t* m, uint32_t mlen) {
+    unsigned char bits[LONG_MESSAGE];
+    unsigned char msg[LONG_MESSAGE / 2];
+    uint16_t aux[LONG_MESSAGE * 2];
+    uint32_t j;
+
+    for (j = 0; j < mlen - FULL_LENGTH * 2; j++) {
+        int low, high, delta, i, errors;
+        int good_message = 0;
+
+        //first step is to try and find a preamble within the buffer
+
+        /* First check of relations between the first 10 samples
+         * representing a valid preamble. We don't even investigate further
+         * if this simple test is not passed. */
+        if (!(m[j] > m[j + 1] &&
+            m[j + 1] < m[j + 2] &&
+            m[j + 2] > m[j + 3] &&
+            m[j + 3] < m[j] &&
+            m[j + 4] < m[j] &&
+            m[j + 5] < m[j] &&
+            m[j + 6] < m[j] &&
+            m[j + 7] > m[j + 8] &&
+            m[j + 8] < m[j + 9] &&
+            m[j + 9] > m[j + 6]))
+        {
+            continue;
+        }
+
+        /* The samples between the two spikes must be < than the average
+         * of the high spikes level. We don't test bits too near to
+         * the high levels as signals can be out of phase so part of the
+         * energy can be in the near samples. */
+        high = (m[j] + m[j + 2] + m[j + 7] + m[j + 9]) / 6;
+        if (m[j + 4] >= high ||
+            m[j + 5] >= high)
+        {
+            continue;
+        }
+
+        /* Similarly samples in the range 11-14 must be low, as it is the
+         * space between the preamble and real data. Again we don't test
+         * bits too near to high levels, see above. */
+        if (m[j + 11] >= high ||
+            m[j + 12] >= high ||
+            m[j + 13] >= high ||
+            m[j + 14] >= high)
+        {
+            continue;
+        }
+
+        //At this point, we probably have a valid preamble
+
+        //TODO: here is where magnitude (phase) correction would occur
+
+        /* Decode all the next 112 bits, regardless of the actual message
+         * size. We'll check the actual message type later. */
+        errors = 0;
+        for (i = 0; i < LONG_MESSAGE * 2; i += 2) {
+            low = m[j + i + PREAMBLE * 2];
+            high = m[j + i + PREAMBLE * 2 + 1];
+            delta = low - high;
+            if (delta < 0) delta = -delta;
+
+            if (i > 0 && delta < 256) {
+                bits[i / 2] = bits[i / 2 - 1];
+            }
+            else if (low == high) {
+                /* Checking if two adiacent samples have the same magnitude
+                 * is an effective way to detect if it's just random noise
+                 * that was detected as a valid preamble. */
+                bits[i / 2] = 2; /* error */
+                if (i < SHORT_MESSAGE * 2) errors++;
+            }
+            else if (low > high) {
+                bits[i / 2] = 1;
+            }
+            else {
+                /* (low < high) for exclusion  */
+                bits[i / 2] = 0;
+            }
+        }
+
+        /* Pack bits into bytes */
+        for (i = 0; i < LONG_MESSAGE; i += 8) {
+            msg[i / 8] =
+                bits[i] << 7 |
+                bits[i + 1] << 6 |
+                bits[i + 2] << 5 |
+                bits[i + 3] << 4 |
+                bits[i + 4] << 3 |
+                bits[i + 5] << 2 |
+                bits[i + 6] << 1 |
+                bits[i + 7];
+        }
+
+        //for now just print the msg bits
+
+        std::cout << "\nMsg = \n";
+        for (size_t i = 0; i < 8; i++) { // this shouldn't actually be up to 8 (?) in theory depends on message size
+            std::cout << static_cast<int>(msg[i]) << " ";
+        }
+        std::cout << "\nwith: " << errors << " errors.\n";
+
+    }
 }
