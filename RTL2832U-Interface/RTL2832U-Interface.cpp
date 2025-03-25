@@ -240,8 +240,6 @@ int main() {
         std::memcpy(dataloop.data, buffer, BUFFER_SIZE);
         calculateMag();
         detectModeS(dataloop.magnitude, BUFFER_SIZE / 2);
-
-
     }
 
     //if (rtlsdr_read_sync(dev, buffer, sizeof(buffer), &bytes_read) < 0) {
@@ -388,13 +386,43 @@ void detectModeS(uint16_t* m, uint32_t mlen) {
         }
 
         //after it's all said and done, decode the message
-        struct modesMessage mm;
+        struct modesMessage mm{};
         decodeModesMessage(&mm, msg);
         displayModesMessage(&mm);
        // std::cout << "\n\n\n";
     }
 }
 
+/* Try to fix single bit errors using the checksum. On success modifies
+ * the original buffer with the fixed version, and returns the position
+ * of the error bit. Otherwise if fixing failed -1 is returned. */
+int fixSingleBitErrors(unsigned char* msg, int bits) {
+    int j;
+    unsigned char aux[LONG_MESSAGE / 8];
+
+    for (j = 0; j < bits; j++) {
+        int byte = j / 8;
+        int bitmask = 1 << (7 - (j % 8));
+        uint32_t crc1, crc2;
+
+        memcpy(aux, msg, bits / 8);
+        aux[byte] ^= bitmask; /* Flip j-th bit. */
+
+        crc1 = ((uint32_t)aux[(bits / 8) - 3] << 16) |
+            ((uint32_t)aux[(bits / 8) - 2] << 8) |
+            (uint32_t)aux[(bits / 8) - 1];
+        crc2 = modesChecksum(aux, bits);
+
+        if (crc1 == crc2) {
+            /* The error is fixed. Overwrite the original buffer with
+             * the corrected sequence, and returns the error bit
+             * position. */
+            memcpy(msg, aux, bits / 8);
+            return j;
+        }
+    }
+    return -1;
+}
 
 void decodeModesMessage(struct modesMessage* mm, unsigned char* msg) {
     uint32_t crc2;   /* Computed CRC, used to verify the message CRC. */
@@ -421,22 +449,20 @@ void decodeModesMessage(struct modesMessage* mm, unsigned char* msg) {
     mm->crcok = (mm->crc == crc2);
 
     //TODO: error fixing
-    /*
-    if (!mm->crcok && Modes.fix_errors &&
-        (mm->msgtype == 11 || mm->msgtype == 17))
-    {
+    
+    if (!mm->crcok && (mm->msgtype == 11 || mm->msgtype == 17)) {
         if ((mm->errorbit = fixSingleBitErrors(msg, mm->msgbits)) != -1) {
             mm->crc = modesChecksum(msg, mm->msgbits);
             mm->crcok = 1;
         }
-        else if (Modes.aggressive && mm->msgtype == 17 &&
-            (mm->errorbit = fixTwoBitsErrors(msg, mm->msgbits)) != -1)
-        {
-            mm->crc = modesChecksum(msg, mm->msgbits);
-            mm->crcok = 1;
-        }
+        //else if (Modes.aggressive && mm->msgtype == 17 &&
+        //    (mm->errorbit = fixTwoBitsErrors(msg, mm->msgbits)) != -1)
+        //{
+        //    mm->crc = modesChecksum(msg, mm->msgbits);
+        //    mm->crcok = 1;
+        //}
     }
-    */
+    
 
     /* Note that most of the other computation happens *after* we fix
      * the single bit errors, otherwise we would need to recompute the
@@ -650,6 +676,34 @@ int decodeAC12Field(unsigned char* msg, int* unit) {
     }
 }
 
+const char* getMEDescription(int metype, int mesub) {
+    const char* mename = "Unknown";
+
+    if (metype >= 1 && metype <= 4)
+        mename = "Aircraft Identification and Category";
+    else if (metype >= 5 && metype <= 8)
+        mename = "Surface Position";
+    else if (metype >= 9 && metype <= 18)
+        mename = "Airborne Position (Baro Altitude)";
+    else if (metype == 19 && mesub >= 1 && mesub <= 4)
+        mename = "Airborne Velocity";
+    else if (metype >= 20 && metype <= 22)
+        mename = "Airborne Position (GNSS Height)";
+    else if (metype == 23 && mesub == 0)
+        mename = "Test Message";
+    else if (metype == 24 && mesub == 1)
+        mename = "Surface System Status";
+    else if (metype == 28 && mesub == 1)
+        mename = "Extended Squitter Aircraft Status (Emergency)";
+    else if (metype == 28 && mesub == 2)
+        mename = "Extended Squitter Aircraft Status (1090ES TCAS RA)";
+    else if (metype == 29 && (mesub == 0 || mesub == 1))
+        mename = "Target State and Status Message";
+    else if (metype == 31 && (mesub == 0 || mesub == 1))
+        mename = "Aircraft Operational Status Message";
+    return mename;
+}
+
 void displayModesMessage(struct modesMessage* mm) {
     int j;
 
@@ -717,11 +771,11 @@ void displayModesMessage(struct modesMessage* mm) {
         printf("  Extended Squitter  Type: %d\n", mm->metype);
         printf("  Extended Squitter  Sub : %d\n", mm->mesub);
         printf("  Extended Squitter  Name: %s\n"); //TODO: Fix these
-            //getMEDescription(mm->metype, mm->mesub));
+        getMEDescription(mm->metype, mm->mesub);
 
-            
+
         /* Decode the extended squitter message. */
-        /*if (mm->metype >= 1 && mm->metype <= 4) {
+        if (mm->metype >= 1 && mm->metype <= 4) {
 
             const char* ac_type_str[4] = {
                 "Aircraft Type D",
@@ -729,7 +783,7 @@ void displayModesMessage(struct modesMessage* mm) {
                 "Aircraft Type B",
                 "Aircraft Type A"
             };
-            */
+
 
             //printf("    Aircraft Type  : %s\n", ac_type_str[mm->aircraft_type]);
             printf("    Identification : %s\n", mm->flight);
@@ -762,3 +816,4 @@ void displayModesMessage(struct modesMessage* mm) {
                 mm->metype, mm->mesub);
         }
     }
+}
