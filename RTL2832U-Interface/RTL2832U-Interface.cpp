@@ -286,7 +286,29 @@ void calculateMag() {
     }
 }
 
+int detectOutOfPhase(uint16_t* m) {
+    if (m[3] > m[2] / 3) return 1;
+    if (m[10] > m[9] / 3) return 1;
+    if (m[6] > m[7] / 3) return -1;
+    if (m[-1] > m[1] / 3) return -1;
+    return 0;
+}
 
+void applyPhaseCorrection(uint16_t* m) {
+    int j;
+    
+    m += 16; /* Skip preamble. */
+    for (j = 0; j < (LONG_MESSAGE - 1) * 2; j += 2) {
+        if (m[j] > m[j + 1]) {
+            /* One */
+            m[j + 2] = (m[j + 2] * 5) / 4;
+        }
+        else {
+            /* Zero */
+            m[j + 2] = (m[j + 2] * 4) / 5;
+        }
+    }
+}
 
 // tries to find a ModeS message within magnitude buffer 'm' of 'mlen' size bytes (which should be BUFFER_SIZE/2 anyway).
 void detectModeS(uint16_t* m, uint32_t mlen) {
@@ -343,6 +365,12 @@ void detectModeS(uint16_t* m, uint32_t mlen) {
         //At this point, we probably have a valid preamble
 
         //TODO: here is where magnitude (phase) correction would occur
+
+        memcpy(aux, m + j + PREAMBLE * 2, sizeof(aux));
+        if (j && detectOutOfPhase(m + j)) {
+            //std::cout << "\t\t\tPHASE CORRECTION" << std::endl;
+            applyPhaseCorrection(m + j);
+        }
 
         /* Decode all the next 112 bits, regardless of the actual message
          * size. We'll check the actual message type later. */
@@ -770,7 +798,7 @@ void displayModesMessage(struct modesMessage* mm) {
         printf("  ICAO Address   : %02x%02x%02x\n", mm->aa1, mm->aa2, mm->aa3);
         printf("  Extended Squitter  Type: %d\n", mm->metype);
         printf("  Extended Squitter  Sub : %d\n", mm->mesub);
-        printf("  Extended Squitter  Name: %s\n"); //TODO: Fix these
+        printf("  Extended Squitter  Name: %s\n");
         getMEDescription(mm->metype, mm->mesub);
 
 
