@@ -18,6 +18,7 @@
     <script src="rotatedMarker.js"></script>
 
     <!-- My scripts -->
+    <script src="main.js"></script> <!-- Main Script -->
     <script src="aircraft.js"></script> <!-- Aircraft class -->
     <script src="simulation.js"></script> <!-- Simulation logic -->
 
@@ -71,13 +72,13 @@
     <header class="header">
         <div class="logo-container">
             <h1 class="header-title">SkySeeker</h1>
-            <img src="planegif.gif" alt="Animated Logo" class="header-gif">
+            <img src="media/planegif.gif" alt="Animated Logo" class="header-gif">
         </div>
         <div class="button-container">
             <button class="button1">Map</button>
             <button class="button">What's Above Me?</button>
-            <a href="LOG.html"><button class="button">Personal Log</button></a>
-
+            <a href="log.html"><button class="button">Personal Log</button></a>
+            
             <!-- DEBUG BUTTON -->
             <button onclick="spawnAircraft()">Spawn Aircraft</button>
 
@@ -91,7 +92,7 @@
                                 let data = JSON.parse(response);
 
                                 // Create new Aircraft object
-                                let newAircraft = new Aircraft(data.ID, data.lat, data.long, data.head, data.alt, data.speed);
+                                let newAircraft = new Aircraft(data.ID, data.lat, data.long, data.head, data.alt, data.speed, '', '');
 
                                 // Create marker for the new aircraft
                                 const movingMarker2 = L.Marker.movingMarker(
@@ -154,7 +155,7 @@
         });
 
         // Make an Aircraft object
-        const plane = new Aircraft("Flight123", 27.947954, -82.466856, 0, 30000, 400);
+        const plane = new Aircraft("Flight123", 27.947954, -82.466856, 0, 30000, 400, '', '');
 
         // Initialize moving marker
         const movingMarker = L.Marker.movingMarker(

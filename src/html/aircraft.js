@@ -4,13 +4,15 @@
 class Aircraft { 
 
     // Constructor function to build Aircraft object
-    constructor(ID, lat, long, head, alt, speed) {
+    constructor(ID, lat, long, head, alt, speed, movingMarker, polyline) {
         this._ID = ID;
         this._lat = lat;
         this._long = long;
         this._head = head;
         this._alt = alt;
         this._speed = speed;
+        this._movingMarker = movingMarker;
+        this._polyline = polyline;
     }
 
     // Getters and Setters
