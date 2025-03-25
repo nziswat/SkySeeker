@@ -232,24 +232,36 @@ int main() {
     ////////////////////////////////
     unsigned char buffer[BUFFER_SIZE];
     int bytes_read;
-    if (rtlsdr_read_sync(dev, buffer, sizeof(buffer), &bytes_read) < 0) {
-        std::cerr << "Failed to read from device" << std::endl;
-    }
-    else {
-        /*
-        std::cout << "Read " << bytes_read << " bytes of raw IQ data" << std::endl;
-        for (int i = 0; i < bytes_read; ++i) {
-            std::cout << std::setw(2) << std::setfill('0') << static_cast<int>(buffer[i]) << " ";
-            if ((i + 1) % 16 == 0) {
-                std::cout << std::endl;
-            }
-        }*/
 
-
+    while (true) {
+        if (rtlsdr_read_sync(dev, buffer, sizeof(buffer), &bytes_read) < 0) {
+            std::cerr << "Failed to read from device" << std::endl;
+        }
         std::memcpy(dataloop.data, buffer, BUFFER_SIZE);
         calculateMag();
         detectModeS(dataloop.magnitude, BUFFER_SIZE / 2);
+
+
     }
+
+    //if (rtlsdr_read_sync(dev, buffer, sizeof(buffer), &bytes_read) < 0) {
+    //    std::cerr << "Failed to read from device" << std::endl;
+    //}
+    //else {
+    //    /*
+    //    std::cout << "Read " << bytes_read << " bytes of raw IQ data" << std::endl;
+    //    for (int i = 0; i < bytes_read; ++i) {
+    //        std::cout << std::setw(2) << std::setfill('0') << static_cast<int>(buffer[i]) << " ";
+    //        if ((i + 1) % 16 == 0) {
+    //            std::cout << std::endl;
+    //        }
+    //    }*/
+    //
+    //
+    //    std::memcpy(dataloop.data, buffer, BUFFER_SIZE);
+    //    calculateMag();
+    //    detectModeS(dataloop.magnitude, BUFFER_SIZE / 2);
+    //}
 
     
 
@@ -379,7 +391,7 @@ void detectModeS(uint16_t* m, uint32_t mlen) {
         struct modesMessage mm;
         decodeModesMessage(&mm, msg);
         displayModesMessage(&mm);
-        std::cout << "\n\n\n";
+       // std::cout << "\n\n\n";
     }
 }
 
@@ -643,10 +655,16 @@ void displayModesMessage(struct modesMessage* mm) {
 
 
     /* Show the raw message. */
-    printf("*");
-    for (j = 0; j < mm->msgbits / 8; j++) printf("%02x", mm->msg[j]);
-    printf(";\n");
+    //printf("*");
+    //for (j = 0; j < mm->msgbits / 8; j++) printf("%02x", mm->msg[j]);
+    //printf(";\n");
 
+    if (mm->crcok) {
+        std::cout << "CRC OK" << std::endl;
+    }
+    else {
+        return;
+    }
     printf("CRC: %06x (%s)\n", (int)mm->crc, mm->crcok ? "ok" : "wrong");
     if (mm->errorbit != -1)
         printf("Single bit error fixed, bit %d\n", mm->errorbit);
