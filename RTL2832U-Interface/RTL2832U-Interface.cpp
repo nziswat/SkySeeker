@@ -27,6 +27,7 @@ typedef int (*RtlSdrReadSync)(rtlsdr_dev_t*, void*, int, int*);
 #define FULL_LENGTH (PREAMBLE+LONG_MESSAGE)
 #define LONG_MESSAGE_BYTES (LONG_MESSAGE/8)
 #define SHORT_MESSAGE_BYTES (SHORT_MESSAGE/8)
+#define ICAO_LEN 7 //includes \0
 
 //these definitions could possibly be configured
 #define BUFFER_SIZE 1024 * 32
@@ -137,6 +138,7 @@ int decodeAC12Field(unsigned char* msg, int* unit);
 int decodeAC13Field(unsigned char* msg, int* unit);
 void displayModesMessage(struct modesMessage* mm);
 
+void sendModesData(modesMessage& mm);
 
 int main() {
     HMODULE hDLL = LoadLibrary(L"rtlsdr.dll");
@@ -364,11 +366,9 @@ void detectModeS(uint16_t* m, uint32_t mlen) {
 
         //At this point, we probably have a valid preamble
 
-        //TODO: here is where magnitude (phase) correction would occur
-
+        //magnitude (phase) correction
         memcpy(aux, m + j + PREAMBLE * 2, sizeof(aux));
         if (j && detectOutOfPhase(m + j)) {
-            //std::cout << "\t\t\tPHASE CORRECTION" << std::endl;
             applyPhaseCorrection(m + j);
         }
 
@@ -416,8 +416,9 @@ void detectModeS(uint16_t* m, uint32_t mlen) {
         //after it's all said and done, decode the message
         struct modesMessage mm{};
         decodeModesMessage(&mm, msg);
-        displayModesMessage(&mm);
-       // std::cout << "\n\n\n";
+       // displayModesMessage(&mm);
+
+        sendModesData(mm);
     }
 }
 
@@ -476,8 +477,7 @@ void decodeModesMessage(struct modesMessage* mm, unsigned char* msg) {
     mm->errorbit = -1;  /* No error */
     mm->crcok = (mm->crc == crc2);
 
-    //TODO: error fixing
-    
+    //error fixing
     if (!mm->crcok && (mm->msgtype == 11 || mm->msgtype == 17)) {
         if ((mm->errorbit = fixSingleBitErrors(msg, mm->msgbits)) != -1) {
             mm->crc = modesChecksum(msg, mm->msgbits);
@@ -732,19 +732,106 @@ const char* getMEDescription(int metype, int mesub) {
     return mename;
 }
 
+
+
+//use this function to send data out of this hellhole
+void sendModesData(modesMessage& mm) {
+    //CRC failure
+    if (!mm.crcok) {
+        return;
+    }
+
+    //all valid modes data should include this
+    char* icaoStr = (char*)malloc(ICAO_LEN);
+    if (!icaoStr) {
+        std::cout << "OUT OF MEMORY" << std::endl;
+        return;
+    }
+
+    sprintf_s(icaoStr, ICAO_LEN, "%02x%02x%02x", mm.aa1, mm.aa2, mm.aa3);
+    //std::cout << icaoStr << std::endl;
+
+
+    //TODO: for each of these, i am just leaving what data can be taken from each condition cuz there is no connection between here and CEF yet
+    
+    //Mr. Kevbo, set up a function in ur CEF shit so that we can call it from here and send the data
+    //to CEF
+
+    //Also if you think it would be easier if i just made a struct and filled in what we need i can do that. Then the CEF would just take the struct and use whatever data is filled in
+
+    //Short Air-Air Surveillance
+    if (mm.msgtype == 0) {
+        
+        //send altitude
+        mm.altitude;
+        mm.unit; //units of measurement (meters [0] or feet [1])
+    }
+    else if (mm.msgtype == 4 || mm.msgtype == 20) {
+        fs_str[mm.fs]; //Flight Status
+        mm.dr; //idk what this is
+        mm.um; //ummmm
+        mm.altitude;
+        mm.unit;
+    }
+    else if (mm.msgtype == 5 || mm.msgtype == 21) {
+        fs_str[mm.fs];
+        mm.dr;
+        mm.um;
+        mm.identity; //squawk
+    }
+    else if (mm.msgtype == 11) {
+        ca_str[mm.ca]; //capability
+    }
+    else if (mm.msgtype == 17) {
+        ca_str[mm.ca]; //capability
+        mm.metype; //extended squitter type
+        mm.mesub; //extended squitter sub
+        getMEDescription(mm.metype, mm.mesub); //extended squitter name
+
+
+        /* Decode the extended squitter message. */
+        if (mm.metype >= 1 && mm.metype <= 4) {
+            const char* ac_type_str[4] = {
+                "Aircraft Type D",
+                "Aircraft Type C",
+                "Aircraft Type B",
+                "Aircraft Type A"
+            };
+            mm.flight; //identification
+        }
+        else if (mm.metype >= 9 && mm.metype <= 18) {
+            mm.fflag; //F flag; even or odd
+            mm.tflag; //T flag UTC or non-UTC
+            mm.altitude;
+            mm.raw_latitude; //latitude (not decoded)
+            mm.raw_longitude; //longitude (not decoded)
+        }
+        else if (mm.metype == 19 && mm.mesub >= 1 && mm.mesub <= 4) {
+            if (mm.mesub == 1 || mm.mesub == 2) {
+                //Velocity stuff
+                mm.ew_dir; //EW direction
+                mm.ew_velocity; //EW velocity
+                mm.ns_dir; //NS direction
+                mm.ns_velocity; //NS velocity
+                mm.vert_rate_source; //Vertical rate src
+                mm.vert_rate_sign; //Vertical rate sign
+                mm.vert_rate; //Vertical rate
+            }
+            else if (mm.mesub == 3 || mm.mesub == 4) {
+                mm.heading_is_valid; //Heading status
+                mm.heading;
+            }
+        }
+    }
+}
+
 void displayModesMessage(struct modesMessage* mm) {
-    int j;
-
-
     /* Show the raw message. */
     //printf("*");
-    //for (j = 0; j < mm->msgbits / 8; j++) printf("%02x", mm->msg[j]);
+    //for (int j = 0; j < mm->msgbits / 8; j++) printf("%02x", mm->msg[j]);
     //printf(";\n");
 
-    if (mm->crcok) {
-        std::cout << "CRC OK" << std::endl;
-    }
-    else {
+    if (!mm->crcok) {
         return;
     }
     printf("CRC: %06x (%s)\n", (int)mm->crc, mm->crcok ? "ok" : "wrong");
