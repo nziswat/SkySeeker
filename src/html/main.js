@@ -25,33 +25,60 @@ function recieveSignal(map, ID, lat, long, head, alt, speed) {
     // If it does not exist, create a new aircraft object
     if (hashMap.get(ID) === undefined) {
 
-        // Initialize moving marker
-        const movingMarker = L.Marker.movingMarker(
-            [[plane.lat, plane.long]], [0], { icon: planeIcon }
-        ).addTo(map);
+        // If lat and long are not defined, do not create a moving marker or polyline
+        // Therefore, initialize them as undefined
+        movingMarker = undefined;
+        polyline = undefined;
 
-        // Create a polyline to track the plane's path
-        const polyline = L.polyline([], { color: 'blue' }).addTo(map);
+        // Check if lat and long are defined
+        if ((lat !== undefined) && (long !== undefined)) {
+            // Initialize moving marker
+            movingMarker = L.Marker.movingMarker(
+                [[plane.lat, plane.long]], [0], { icon: planeIcon }
+            ).addTo(map);
+
+            // Create a polyline to track the plane's path
+            polyline = L.polyline([], { color: 'blue' }).addTo(map);
+        }
         
         // Create new aircraft object
-        let newAircraft = new Aircraft(ID, lat, long, head, alt, speed, polyline, movingMarker);
+        newAircraft = new Aircraft(ID, lat, long, head, alt, speed, polyline, movingMarker);
 
         // Insert it into the hash map
         hashMap.set(ID, newAircraft);
     }
     // If it does exist, update the aircraft object
     else {
-        let existingAircraft = hashMap.get(ID);
-        existingAircraft.lat = lat;
-        existingAircraft.long = long;
-        existingAircraft.head = head;
-        existingAircraft.alt = alt;
-        existingAircraft.speed = speed;
+        existingAircraft = hashMap.get(ID);
+        properties = { lat, long, head, alt, speed };
+        for (i in range (0, 4)) {
+            if (properties[i] !== undefined) {
+                existingAircraft.properties[i] = properties[i];
+            }
+        }
 
         // Update the movingMarker and polyline
-        existingAircraft.movingMarker.setLatLng([plane.lat, plane.long]);
-        existingAircraft.movingMarker.setRotationAngle(plane.head - 45); // -45 rotate for given icon
-        existingAircraft.polyline.addLatLng([lat, long]);
+        if ((lat !== undefined) && (long !== undefined)) {
+            
+            // If moving marker and polyline are undefined, initialize them
+            if (existingAircraft.movingMarker === undefined) {
+                // Initialize moving marker
+                existingAircraft.movingMarker = L.Marker.movingMarker(
+                    [[plane.lat, plane.long]], [0], { icon: planeIcon }
+                ).addTo(map);
+
+                // Create a polyline to track the plane's path
+                existingAircraft.polyline = L.polyline([], { color: 'blue' }).addTo(map);
+            } 
+            // Otherwise, just update the movingMarker and polyline like normal
+            else {
+                existingAircraft.movingMarker.setLatLng([plane.lat, plane.long]);
+                existingAircraft.polyline.addLatLng([lat, long]);
+            }
+        }
+        if ((head !== undefined) && (existingAircraft.movingMarker !== undefined)) {
+            existingAircraft.movingMarker.setRotationAngle(plane.head - 45); // -45 rotate for given icon
+        }
 
         // Update the table with the current information
         //updateTable(existingAircraft);

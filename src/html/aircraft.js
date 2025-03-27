@@ -1,5 +1,5 @@
 // Aircraft Class
-// Properties: ID, Latitude, Longitude, Heading, Altitude, Speed
+// Properties: ID, Latitude, Longitude, Heading, Altitude, Speed, moving marker, polyline
 
 class Aircraft { 
 
@@ -40,5 +40,13 @@ class Aircraft {
     // Speed
     set speed(speed) { this._speed = speed; }
     get speed() { return this._speed; }
+
+     // Moving marker
+     set movingMarker(movingMarker) { this._movingMarker = movingMarker; }
+     get movingMarker() { return this._movingMarker; }
+
+      // Polyline
+    set polyline(polyline) { this._polyline = polyline; }
+    get polyline() { return this._polyline; }
 
 }
