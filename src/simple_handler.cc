@@ -16,6 +16,8 @@
 #include "src/RTL_interface.h"
 #include "thread"
 
+int track = 0;
+
 namespace {
 
 SimpleHandler* g_instance = nullptr;
@@ -76,7 +78,6 @@ void SimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
 
 void SimpleHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();
-
   // Sanity-check the configured runtime style.
   CHECK_EQ(is_alloy_style_ ? CEF_RUNTIME_STYLE_ALLOY : CEF_RUNTIME_STYLE_CHROME,
            browser->GetHost()->GetRuntimeStyle());
@@ -84,12 +85,16 @@ void SimpleHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   // Add to the list of existing browsers.
   browser_list_.push_back(browser);
   // keep reference to browser
-  browser_ref = browser;
-  message_handler_->browser_ref_m = browser; // finally works at this fucking point
-  std::thread rtlThread(&runRTL, message_handler_.get());
-  rtlThread.detach();
 
-
+  if (track == 0) {
+      browser_ref = browser;
+      message_handler_->browser_ref_m = browser; // finally works at this fucking point
+      //std::thread rtlThread(&runRTL, message_handler_.get());
+      //rtlThread.detach();
+      std::thread testThread(&testLoop, message_handler_.get());
+      testThread.detach();
+      ++track;
+  };
 }
 
 bool SimpleHandler::DoClose(CefRefPtr<CefBrowser> browser) {

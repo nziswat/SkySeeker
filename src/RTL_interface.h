@@ -12,3 +12,4 @@ int decodeAC13Field(unsigned char* msg, int* unit);
 void displayModesMessage(struct modesMessage* mm);
 void sendModesData(modesMessage& mm);
 int runRTL(MessageHandler* NewMessageHandler);
+void testLoop(MessageHandler* NewMessageHandler);

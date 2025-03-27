@@ -17,7 +17,8 @@
 #include "include/cef_task.h"        // For CefPostTask
 #include "include/wrapper/cef_closure_task.h" // For CefCreateClosureTask
 #include "include/cef_v8.h"
-
+#include "thread"
+#include "chrono"
 
 
 typedef int (*RtlSdrOpen)(rtlsdr_dev_t**, uint32_t);
@@ -40,6 +41,9 @@ typedef int (*RtlSdrReadSync)(rtlsdr_dev_t*, void*, int, int*);
 
 //these definitions could possibly be configured
 #define BUFFER_SIZE 1024 * 32
+
+//make the loop run forever?
+#define BULK_TIMEOUT 0
 
 //struct to proccess modeS
 struct { //adapted from dump1090
@@ -217,6 +221,7 @@ int runRTL(MessageHandler* NewMessageHandler) {
     int bytes_read;
 
     while (true) {
+        PostCefTask(messageHandler);
         if (rtlsdr_read_sync(dev, buffer, sizeof(buffer), &bytes_read) < 0) {
             std::cerr << "Failed to read from device" << std::endl;
         }
@@ -299,8 +304,6 @@ void detectModeS(uint16_t* m, uint32_t mlen) {
     unsigned char msg[LONG_MESSAGE / 2];
     uint16_t aux[LONG_MESSAGE * 2];
     uint32_t j;
-
-    PostCefTask(messageHandler);
 
     for (j = 0; j < mlen - FULL_LENGTH * 2; j++) {
         int low, high, delta, i, errors;
@@ -401,7 +404,6 @@ void detectModeS(uint16_t* m, uint32_t mlen) {
         struct modesMessage mm{};
         decodeModesMessage(&mm, msg);
        // displayModesMessage(&mm);
-        PostCefTask(messageHandler);  // Call the function to post the task
         sendModesData(mm);
     }
 }
@@ -922,5 +924,15 @@ void displayModesMessage(struct modesMessage* mm) {
             printf("    Unrecognized ME type: %d subtype: %d\n",
                 mm->metype, mm->mesub);
         }
+    }
+}
+
+
+void testLoop(MessageHandler* NewMessageHandler) {
+    messageHandler = NewMessageHandler;
+    while (true){
+        Sleep(250);
+        PostCefTask(messageHandler);
+
     }
 }
