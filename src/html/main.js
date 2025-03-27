@@ -51,9 +51,9 @@ function recieveSignal(map, ID, lat, long, head, alt, speed) {
     else {
         existingAircraft = hashMap.get(ID);
         properties = { lat, long, head, alt, speed };
-        for (i in range (0, 4)) {
-            if (properties[i] !== undefined) {
-                existingAircraft.properties[i] = properties[i];
+        for (let key in properties) {
+            if (properties[key] !== undefined) {
+                existingAircraft[key] = properties[key];  // Correct property update
             }
         }
 
