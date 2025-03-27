@@ -17,8 +17,9 @@
 #include "include/cef_task.h"        // For CefPostTask
 #include "include/wrapper/cef_closure_task.h" // For CefCreateClosureTask
 #include "include/cef_v8.h"
-#include "thread"
-#include "chrono"
+#include <sstream>
+#include <src/json.h>
+using json = nlohmann::json;
 
 
 typedef int (*RtlSdrOpen)(rtlsdr_dev_t**, uint32_t);
@@ -112,12 +113,75 @@ int decodeAC12Field(unsigned char* msg, int* unit);
 int decodeAC13Field(unsigned char* msg, int* unit);
 void displayModesMessage(struct modesMessage* mm);
 void sendModesData(modesMessage& mm);
+const char* getMEDescription(int metype, int mesub);
 
-void PostCefTask(MessageHandler* NewMessageHandler) {
-    // Create a task to run on the UI thread
-    auto task = new MyCefTask(NewMessageHandler, "asdf universe");
+void PostCefTask(MessageHandler* NewMessageHandler, const modesMessage& mm) {
+    json root;
 
-    // Post the task to the UI thread
+    // format the ICAO address as a hex string
+    char icaoStr[ICAO_LEN];
+    snprintf(icaoStr, ICAO_LEN, "%02X%02X%02X", mm.aa1, mm.aa2, mm.aa3);
+    root["icao"] = icaoStr;
+
+    // populate JSON based on msgtype
+    if (mm.msgtype == 0) {
+        root["altitude"] = mm.altitude;
+        root["unit"] = mm.unit;
+    }
+    else if (mm.msgtype == 4 || mm.msgtype == 20) {
+        root["flight_status"] = fs_str[mm.fs];
+        root["dr"] = mm.dr;
+        root["um"] = mm.um;
+        root["altitude"] = mm.altitude;
+        root["unit"] = mm.unit;
+    }
+    else if (mm.msgtype == 5 || mm.msgtype == 21) {
+        root["flight_status"] = fs_str[mm.fs];
+        root["dr"] = mm.dr;
+        root["um"] = mm.um;
+        root["squawk"] = mm.identity;
+    }
+    else if (mm.msgtype == 11) {
+        root["capability"] = ca_str[mm.ca];
+    }
+    else if (mm.msgtype == 17) {
+        root["capability"] = ca_str[mm.ca];
+        root["metype"] = mm.metype;
+        root["mesub"] = mm.mesub;
+        root["description"] = getMEDescription(mm.metype, mm.mesub);
+
+        if (mm.metype >= 1 && mm.metype <= 4) {
+            root["flight"] = mm.flight;
+        }
+        else if (mm.metype >= 9 && mm.metype <= 18) {
+            root["fflag"] = mm.fflag;
+            root["tflag"] = mm.tflag;
+            root["altitude"] = mm.altitude;
+            root["raw_latitude"] = mm.raw_latitude;
+            root["raw_longitude"] = mm.raw_longitude;
+        }
+        else if (mm.metype == 19 && mm.mesub >= 1 && mm.mesub <= 4) {
+            if (mm.mesub == 1 || mm.mesub == 2) {
+                root["ew_dir"] = mm.ew_dir;
+                root["ew_velocity"] = mm.ew_velocity;
+                root["ns_dir"] = mm.ns_dir;
+                root["ns_velocity"] = mm.ns_velocity;
+                root["vert_rate_source"] = mm.vert_rate_source;
+                root["vert_rate_sign"] = mm.vert_rate_sign;
+                root["vert_rate"] = mm.vert_rate;
+            }
+            else if (mm.mesub == 3 || mm.mesub == 4) {
+                root["heading_is_valid"] = mm.heading_is_valid;
+                root["heading"] = mm.heading;
+            }
+        }
+    }
+
+    // Convert JSON object to string
+    std::string jsonMessage = root.dump();
+
+    // Send to CEF UI thread
+    auto task = new MyCefTask(NewMessageHandler, jsonMessage);
     CefPostTask(TID_UI, task);
 }
 
@@ -221,7 +285,6 @@ int runRTL(MessageHandler* NewMessageHandler) {
     int bytes_read;
 
     while (true) {
-        PostCefTask(messageHandler);
         if (rtlsdr_read_sync(dev, buffer, sizeof(buffer), &bytes_read) < 0) {
             std::cerr << "Failed to read from device" << std::endl;
         }
@@ -810,8 +873,7 @@ void sendModesData(modesMessage& mm) {
         }
     }
 
-    //CefPostTask(TID_RENDERER, base::BindOnce(&MessageHandler::sendDebug, messageHandler, "asdf universe"));
-
+    PostCefTask(messageHandler, mm);
 
 
 }
@@ -932,7 +994,6 @@ void testLoop(MessageHandler* NewMessageHandler) {
     messageHandler = NewMessageHandler;
     while (true){
         Sleep(250);
-        PostCefTask(messageHandler);
 
     }
 }

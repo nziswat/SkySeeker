@@ -53,12 +53,10 @@ public:
         }
         
 
-        void sendPacket(modesMessage packet) {
-            browser_ref_m->GetMainFrame()->ExecuteJavaScript(
-                "console.log('Aircraft Received, ICAO address is: " + std::string(packet.flight) + "');",
-                browser_ref_m->GetMainFrame()->GetURL(),
-                0
-            );
+        void MessageHandler::sendToJS(const std::string& functionName, const std::string& jsonMessage) {
+            std::string script = functionName + "(" + jsonMessage + ");";
+            // Execute JavaScript in the main frame
+            browser_ref_m->GetMainFrame()->ExecuteJavaScript(script, browser_ref_m->GetMainFrame()->GetURL(), 0);
         }
 
 
@@ -74,7 +72,7 @@ public:
 
     void Execute() override {
         if (handler_) {
-            handler_->sendDebug(message_);
+            handler_->sendToJS("updateAircraftData", message_);
         }
     }
 

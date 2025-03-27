@@ -110,6 +110,13 @@
             console.log(input);
         };
 
+
+        function updateAircraftData(data) {
+            let aircraftData = JSON.parse(data);
+            let icao = aircraftData.icao;
+            console.log("Updated Aircraft Data:", icao);
+        }
+
         // Initialize map
         const map = initializeMap("map", [27.947954, -82.466856], 12); // Default: Tampa
 
