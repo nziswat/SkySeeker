@@ -8,6 +8,7 @@
 #include "include/cef_client.h"
 #include "include/wrapper/cef_message_router.h"
 #include "include/cef_render_process_handler.h"
+#include "src/message_handler.h"
 
 class SimpleHandler : public CefClient,
                       public CefDisplayHandler,
@@ -81,7 +82,11 @@ class SimpleHandler : public CefClient,
 
   // save routers for messaging
   CefRefPtr<CefMessageRouterBrowserSide> message_router_; 
-  std::unique_ptr<CefMessageRouterBrowserSide::Handler> message_handler_;
+  std::unique_ptr<MessageHandler> message_handler_;
+
+  
+  // constant reference to the browser
+  CefRefPtr<CefBrowser> browser_ref;
 
 
   // Include the default reference counting implementation.

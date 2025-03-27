@@ -6,6 +6,7 @@
 #include "include/cef_sandbox_win.h"
 #include "src/simple_app.h"
 #include "src/renderer.h"
+#include "src/RTL_interface.h"
 
 // When generating projects with CMake the CEF_USE_SANDBOX value will be defined
 // automatically if using the required compiler version. Pass -DUSE_SANDBOX=OFF
@@ -83,6 +84,10 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 
   // Run the CEF message loop. This will block until CefQuitMessageLoop() is
   // called.
+  
+  //grab reference to messageHandler
+  
+
   CefRunMessageLoop();
 
   // Shut down CEF.

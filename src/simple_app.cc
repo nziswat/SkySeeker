@@ -12,6 +12,7 @@
 #include "include/views/cef_window.h"
 #include "include/wrapper/cef_helpers.h"
 #include "src/simple_handler.h"
+#include "src/RTL_interface.h"
 
 namespace {
 
@@ -127,7 +128,7 @@ void SimpleApp::OnContextInitialized() {
   // that instead of the default URL.
   url = command_line->GetSwitchValue("url");
   if (url.empty()) {
-      std::filesystem::path htmlPath = std::filesystem::current_path() / "html/MAP.html";
+      std::filesystem::path htmlPath = std::filesystem::current_path() / "html/map.html";
       url = "file://" + htmlPath.generic_string();
   }
 
@@ -178,6 +179,9 @@ void SimpleApp::OnContextInitialized() {
     // Create the first browser window.
     CefBrowserHost::CreateBrowser(window_info, handler, url, browser_settings,
                                   nullptr, nullptr);
+
+
+
   }
 }
 

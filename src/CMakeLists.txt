@@ -16,7 +16,10 @@ set(CEFSIMPLE_SRCS
   simple_handler.h
   renderer.cpp
   renderer.h
-  message_handler.h "structs.h")
+  message_handler.h
+  structs.h
+  RTL_interface.cc
+  RTL_interface.h)
 set(CEFSIMPLE_SRCS_LINUX
   cefsimple_linux.cc
   simple_handler_linux.cc
@@ -248,7 +251,11 @@ if(OS_WINDOWS)
   COPY_FILES("${CEF_TARGET}" "${CEF_BINARY_FILES}" "${CEF_BINARY_DIR}" "${CEF_TARGET_OUT_DIR}")
   COPY_FILES("${CEF_TARGET}" "${CEF_RESOURCE_FILES}" "${CEF_RESOURCE_DIR}" "${CEF_TARGET_OUT_DIR}")
   #copy HTML folder too except this doesn't actually work most of the time 
-  file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/html" DESTINATION "${CEF_TARGET_OUT_DIR}")
+add_custom_target(copy_html ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    "${CMAKE_CURRENT_SOURCE_DIR}/html"
+    "${CEF_TARGET_OUT_DIR}/html"
+)
 
   if(USE_SANDBOX)
     # Set LPAC ACLs required for Windows sandbox support.

@@ -4,7 +4,7 @@
 
 #include <sstream>
 #include <string>
-
+#include <iostream>
 #include "include/base/cef_callback.h"
 #include "include/cef_app.h"
 #include "include/cef_parser.h"
@@ -13,6 +13,8 @@
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_helpers.h"
 #include "src/message_handler.h"
+#include "src/RTL_interface.h"
+#include "thread"
 
 namespace {
 
@@ -28,6 +30,8 @@ std::string GetDataURI(const std::string& data, const std::string& mime_type) {
 }  // namespace
 
 
+
+
 SimpleHandler::SimpleHandler(bool is_alloy_style) //constructor
     : is_alloy_style_(is_alloy_style) {
   DCHECK(!g_instance);
@@ -37,7 +41,8 @@ SimpleHandler::SimpleHandler(bool is_alloy_style) //constructor
   message_router_ = CefMessageRouterBrowserSide::Create(config);
 
   //save message handler, then register it to the router
-  message_handler_.reset(new MessageHandler());
+  message_handler_ = std::make_unique<MessageHandler>();
+  //message_handler_.reset(new MessageHandler());
   message_router_->AddHandler(message_handler_.get(), false); 
 }
 
@@ -78,6 +83,13 @@ void SimpleHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 
   // Add to the list of existing browsers.
   browser_list_.push_back(browser);
+  // keep reference to browser
+  browser_ref = browser;
+  message_handler_->browser_ref_m = browser; // finally works at this fucking point
+  std::thread rtlThread(&runRTL, message_handler_.get());
+  rtlThread.detach();
+
+
 }
 
 bool SimpleHandler::DoClose(CefRefPtr<CefBrowser> browser) {

@@ -4,8 +4,13 @@
 #include "src/structs.h"
 #include <string>
 
-class MessageHandler : public CefMessageRouterBrowserSide::Handler {
+class MessageHandler : public CefMessageRouterBrowserSide::Handler, public CefBaseRefCounted {
 public:
+
+    CefRefPtr<CefBrowser> browser_ref_m; //should keep a reference to the browser at all times.
+
+    //// Previous Debug Code
+    /*
     bool OnQuery(CefRefPtr<CefBrowser> browser,
         CefRefPtr<CefFrame> frame,
         int64_t query_id,
@@ -37,16 +42,44 @@ public:
                 "console.log('Hello from C++!');",
                 browser->GetMainFrame()->GetURL(),
                 0);
-    }
-        void sendDebug(std::string debug,
-            CefRefPtr<CefBrowser> browser) {
+    }*/
 
-            browser->GetMainFrame()->ExecuteJavaScript(
+        //sends a string
+        void sendDebug(std::string debug) {
+            browser_ref_m->GetMainFrame()->ExecuteJavaScript(
                 "debugCall(\"" + debug + " \")",
-                browser->GetMainFrame()->GetURL(),
+                browser_ref_m->GetMainFrame()->GetURL(),
                 0);
         }
+        
 
-    //
-    //IMPLEMENT_REFCOUNTING(MyHandler);
+        void sendPacket(modesMessage packet) {
+            browser_ref_m->GetMainFrame()->ExecuteJavaScript(
+                "console.log('Aircraft Received, ICAO address is: " + std::string(packet.flight) + "');",
+                browser_ref_m->GetMainFrame()->GetURL(),
+                0
+            );
+        }
+
+
+
+private:
+    IMPLEMENT_REFCOUNTING(MessageHandler);
+};
+
+class MyCefTask : public CefTask {
+public:
+    MyCefTask(MessageHandler* handler, const std::string& message)
+        : handler_(handler), message_(message) {}
+
+    void Execute() override {
+        if (handler_) {
+            handler_->sendDebug(message_);
+        }
+    }
+
+private:
+    MessageHandler* handler_;
+    std::string message_;
+    IMPLEMENT_REFCOUNTING(MyCefTask);
 };

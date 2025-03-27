@@ -82,46 +82,6 @@
             <!-- DEBUG BUTTON -->
             <button onclick="spawnAircraft()">Spawn Aircraft</button>
 
-            <script>
-                function spawnAircraft() {
-                    if (window.cefQuery) {
-                        window.cefQuery({
-                            request: "spawn_aircraft",
-                            onSuccess: function (response) {
-                                console.log("Aircraft spawned xdd: " + response);
-                                let data = JSON.parse(response);
-
-                                // Create new Aircraft object
-                                let newAircraft = new Aircraft(data.ID, data.lat, data.long, data.head, data.alt, data.speed, '', '');
-
-                                // Create marker for the new aircraft
-                                const movingMarker2 = L.Marker.movingMarker(
-                                    [[newAircraft.lat, newAircraft.long]], [0], { icon: planeIcon }
-                                ).addTo(map);
-
-                                // Create a polyline to track the plane's path
-                                const polyline2 = L.polyline([], { color: 'blue' }).addTo(map);
-
-                                // Perform the simulation (you can modify this logic as needed)
-                                circle(newAircraft, newAircraft.long, newAircraft.lat, 0.05, 36, 3, 1, movingMarker2, polyline2);
-                            },
-                            onFailure: function (error_code, error_message) {
-                                console.error("CEF Error:", error_message);
-                            }
-                        });
-                    } else {
-                        console.error("CEF not available!");
-                    }
-                }
-                function debugCall(input) {
-                    console.log("Debug input recieved, input is as follows;")
-                    console.log(input)
-
-
-
-                }
-            </script>
-
 
 
         </div>
@@ -144,6 +104,12 @@
     <div id="map"></div>
 
     <script>
+
+        window.debugCall = function (input) {
+            console.log("Debug input received, input is as follows:");
+            console.log(input);
+        };
+
         // Initialize map
         const map = initializeMap("map", [27.947954, -82.466856], 12); // Default: Tampa
 
