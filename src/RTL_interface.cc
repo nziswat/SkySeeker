@@ -19,6 +19,7 @@
 #include "include/cef_v8.h"
 #include <sstream>
 #include <src/json.h>
+#include "RTL_interface.h"
 using json = nlohmann::json;
 
 
@@ -283,7 +284,16 @@ int runRTL(MessageHandler* NewMessageHandler) {
     ////////////////////////////////
     unsigned char buffer[BUFFER_SIZE];
     int bytes_read;
-
+    exitDriverThread = false;
+    //AllocConsole();
+    //FILE* fDummy;
+    //freopen_s(&fDummy, "CONOUT$", "w", stdout);
+    //freopen_s(&fDummy, "CONOUT$", "w", stderr);
+    //freopen_s(&fDummy, "CONIN$", "r", stdin);
+    //std::cout.clear();
+    //std::clog.clear();
+    //std::cerr.clear();
+    //std::cin.clear();
     while (true) {
         if (rtlsdr_read_sync(dev, buffer, sizeof(buffer), &bytes_read) < 0) {
             std::cerr << "Failed to read from device" << std::endl;
@@ -291,8 +301,12 @@ int runRTL(MessageHandler* NewMessageHandler) {
         std::memcpy(dataloop.data, buffer, BUFFER_SIZE);
         calculateMag();
         detectModeS(dataloop.magnitude, BUFFER_SIZE / 2);
+        if (exitDriverThread) {
+            std::cout << "Shutting Down LibUSB" << std::endl;
+            break;
+        }
     }
-
+    
     //if (rtlsdr_read_sync(dev, buffer, sizeof(buffer), &bytes_read) < 0) {
     //    std::cerr << "Failed to read from device" << std::endl;
     //}

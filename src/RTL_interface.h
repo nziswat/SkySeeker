@@ -2,6 +2,8 @@
 //might be useless tbh
 #include "src/message_handler.h"
 
+static bool exitDriverThread;
+
 void calculateMag();
 void detectModeS(uint16_t* m, uint32_t mlen);
 int modesMessageLenByType(int type);

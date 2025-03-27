@@ -88,7 +88,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   
   std::cout << "Message loop about to run" << std::endl;
   CefRunMessageLoop();
-
+  exitDriverThread = true;
   // Shut down CEF.
   CefShutdown();
 
