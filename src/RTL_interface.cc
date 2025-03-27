@@ -873,6 +873,8 @@ void sendModesData(modesMessage& mm) {
         }
     }
 
+    //messageHandler->sendDebug(icaoStr);
+
     PostCefTask(messageHandler, mm);
 
 
