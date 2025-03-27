@@ -115,6 +115,30 @@
             let aircraftData = data;
             let icao = aircraftData.icao;
             console.log("Updated Aircraft Data:", icao);
+            if ((aircraftData.heading === null) || (aircraftData.heading === undefined)){
+                if ((aircraftData.ew_velocity !== null) || (aircraftData.ew_velocity !== undefined)){
+                    aircraftData.heading = Math.atan((aircraftData.ns_velocity/aircraftData.ew_velocity)) * 180 / Math.PI;
+                }
+            }
+            // Calculate speed
+            speed = Math.sqrt(aircraftData.ns_velocity ** 2 + aircraftData.ew_velocity ** 2);
+
+            // Set null values to undefined
+            // Note: unsure if they are null or undefined by default
+            if (aircraftData.raw_latitude === null) {
+                aircraftData.raw_latitude = undefined;
+                aircraftData.raw_longitude = undefined;
+            }
+            if (aircraftData.heading === null) {
+                aircraftData.heading = undefined;
+            }
+            if (aircraftData.altitude === null) {
+                aircraftData.altitude = undefined;
+            }
+            if (speed === null) {
+                speed = undefined;
+            }
+            receiveSignal(map, aircraftData.icao, aircraftData.raw_latitude, aircraftData.raw_longitude, aircraftData.heading, aircraftData.altitude, speed) 
         }
 
         // Initialize map
@@ -140,6 +164,7 @@
 
         // Perform the simulation
         circle(plane, -82.466856, 27.947954, 0.05, 36, 3, 1, movingMarker, polyline);
+
     </script>
 </body>
 </html>

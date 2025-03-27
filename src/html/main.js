@@ -20,7 +20,7 @@ function initializeMap(containerId, center, zoom) {
 }
 
 // Function to update Aircraft/flight info
-function recieveSignal(map, ID, lat, long, head, alt, speed) {
+function receiveSignal(map, ID, lat, long, head, alt, speed) {
 
     // If it does not exist, create a new aircraft object
     if (hashMap.get(ID) === undefined) {
