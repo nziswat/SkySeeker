@@ -114,7 +114,7 @@
         function updateAircraftData(data) {
             let aircraftData = data;
             let icao = aircraftData.icao;
-            console.log("Updated Aircraft Data:", icao);
+            console.log("Updated Aircraft Data1:", "icao:", icao, "lat:", aircraftData.raw_latitude, "long:", aircraftData.raw_longitude, "head:", aircraftData.heading, "alt:", aircraftData.altitude);
             if ((aircraftData.heading === null) || (aircraftData.heading === undefined)){
                 if ((aircraftData.ew_velocity !== null) || (aircraftData.ew_velocity !== undefined)){
                     aircraftData.heading = Math.atan((aircraftData.ns_velocity/aircraftData.ew_velocity)) * 180 / Math.PI;
@@ -138,6 +138,7 @@
             if (speed === null) {
                 speed = undefined;
             }
+            console.log("Updated Aircraft Data2:", "icao:", icao, "lat:", aircraftData.raw_latitude, "long:", aircraftData.raw_longitude, "head:", aircraftData.heading, "alt:", aircraftData.altitude, "speed:", speed);
             receiveSignal(map, aircraftData.icao, aircraftData.raw_latitude, aircraftData.raw_longitude, aircraftData.heading, aircraftData.altitude, speed) 
         }
 
@@ -150,7 +151,7 @@
             iconSize: [40, 40],
             iconAnchor: [20, 20] // Rotate around the center of the icon
         });
-
+        /*
         // Make an Aircraft object
         const plane = new Aircraft("Flight123", 27.947954, -82.466856, 0, 30000, 400, '', '');
 
@@ -164,7 +165,7 @@
 
         // Perform the simulation
         circle(plane, -82.466856, 27.947954, 0.05, 36, 3, 1, movingMarker, polyline);
-
+        */
     </script>
 </body>
 </html>
