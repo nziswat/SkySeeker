@@ -8,12 +8,42 @@
 #include "src/renderer.h"
 #include "src/RTL_interface.h"
 #include <iostream>
+#include <filesystem>
+namespace fs = std::filesystem;
 
 // When generating projects with CMake the CEF_USE_SANDBOX value will be defined
 // automatically if using the required compiler version. Pass -DUSE_SANDBOX=OFF
 // to the CMake command-line to disable use of the sandbox.
 // Uncomment this line to manually enable sandbox support.
 // #define CEF_USE_SANDBOX 1
+
+void copyHTML() {
+    fs::path exe_path = fs::current_path();
+    fs::path source = exe_path / "../../../../../src/html";
+    fs::path destination = exe_path;
+    fs::create_directories(destination);
+
+
+    // Copy the directory
+    for (const auto& entry : fs::recursive_directory_iterator(source)) {
+        const auto& path = entry.path();
+        auto relative_path = fs::relative(path, source);
+        auto destination_path = destination / "html" / relative_path;
+
+        if (fs::is_directory(path)) {
+            fs::create_directories(destination_path);
+        }
+        else {
+            fs::copy_file(path, destination_path, fs::copy_options::overwrite_existing);
+        }
+    }
+
+    Sleep(2000);
+}
+
+
+
+
 
 #if defined(CEF_USE_SANDBOX)
 // The cef_sandbox.lib static library may not link successfully with all VS
@@ -29,7 +59,6 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   UNREFERENCED_PARAMETER(hPrevInstance);
   UNREFERENCED_PARAMETER(lpCmdLine);
 
-//  int exit_code;
 
 
   void* sandbox_info = nullptr;
@@ -73,6 +102,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
   settings.no_sandbox = true;
 #endif
 
+
+
+
   // in theory, call the browser that inherits from cefRenderProcessHandler and pass it into here to get CefQuery working 
   CefExecuteProcess(main_args, r_app, sandbox_info);
 
@@ -85,7 +117,10 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 
   // Run the CEF message loop. This will block until CefQuitMessageLoop() is
   // called.
-  
+#ifdef _DEBUG // automatically move html files over if launched in debug mode
+  copyHTML();
+#endif
+
   std::cout << "Message loop about to run" << std::endl;
   CefRunMessageLoop();
   exitDriverThread = true;
