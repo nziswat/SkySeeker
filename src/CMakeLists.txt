@@ -250,11 +250,16 @@ if(OS_WINDOWS)
   # Copy binary and resource files to the target output directory.
   COPY_FILES("${CEF_TARGET}" "${CEF_BINARY_FILES}" "${CEF_BINARY_DIR}" "${CEF_TARGET_OUT_DIR}")
   COPY_FILES("${CEF_TARGET}" "${CEF_RESOURCE_FILES}" "${CEF_RESOURCE_DIR}" "${CEF_TARGET_OUT_DIR}")
-  #copy HTML folder too except this doesn't actually work most of the time 
+
+  #copy rtlsdr.dll
+  COPY_SINGLE_FILE("${CEF_TARGET}" "${CMAKE_CURRENT_SOURCE_DIR}/rtlsdr.dll" "${CEF_TARGET_OUT_DIR}/rtlsdr.dll")
+
+  #copy HTML folder
 add_custom_target(copy_html ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     "${CMAKE_CURRENT_SOURCE_DIR}/html"
     "${CEF_TARGET_OUT_DIR}/html"
+
 )
 
   if(USE_SANDBOX)
