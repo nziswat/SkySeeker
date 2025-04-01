@@ -74,12 +74,12 @@ class Aircraft {
 
     // https://airmetar.main.jp/radio/ADS-B%20Decoding%20Guide.pdf
     // Method to update the latitude and longitude
-    updateLatLong(raw_lat, raw_long) {
+    updateLatLong(raw_lat, raw_long, fflag) {
 
         // Check if the signal is even or odd
 
         // If the signal is even, update the even boolean to true and update even long and lat
-        if ((raw_lat % 2) == 0) {
+        if (fflag == 0) {
             this.even = true;
             this.e_lat = raw_lat / 131072; // 131072 is max value (17^2)
             this.e_long = raw_long / 131072;
@@ -180,10 +180,10 @@ class Aircraft {
 }
 
 // Function to update Aircraft/flight info
-function receiveSignal(map, ID, lat, long, head, alt, speed) {
+function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
 
     // If it does not exist, create a new aircraft object
-    if (hashMap.get(ID) === undefined) {
+    if (hashMap.get(ID) == undefined) {
 
         // Create new aircraft object
         let newAircraft = new Aircraft(ID);
@@ -192,8 +192,8 @@ function receiveSignal(map, ID, lat, long, head, alt, speed) {
         hashMap.set(ID, newAircraft);
 
         // Check if lat and long are defined
-        if ((lat !== undefined) && (long !== undefined)) {
-            newAircraft.updateLatLong(lat, long)
+        if ((lat != undefined) && (long != undefined)) {
+            newAircraft.updateLatLong(lat, long, fflag);
         }
         console.log("Updated Aircraft Data3:", "icao:", newAircraft.ID, "lat:", newAircraft.lat, "long:", newAircraft.long,
             "head:", newAircraft.head, "alt:", newAircraft.alt, "speed:", newAircraft.speed);
@@ -204,25 +204,25 @@ function receiveSignal(map, ID, lat, long, head, alt, speed) {
         let existingAircraft = hashMap.get(ID);
         let properties = { head, alt, speed };
         for (let key in properties) {
-            if (properties[key] !== undefined) {
+            if (properties[key] != undefined) {
                 existingAircraft[key] = properties[key];  // Correct property update
             }
         }
 
         // Check if lat and long are defined
-        if ((lat !== undefined) && (long !== undefined)) {
+        if ((lat != undefined) && (long != undefined)) {
             // Try to update them
-            existingAircraft.updateLatLong(lat, long)
+            existingAircraft.updateLatLong(lat, long, fflag);
         }
 
 
         // Update the movingMarker and polyline
-        if ((existingAircraft.lat !== undefined) && (existingAircraft.long !== undefined)) {
+        if ((existingAircraft.lat != undefined) && (existingAircraft.long != undefined)) {
 
             // If moving marker and polyline are undefined, initialize them
-            if (existingAircraft.movingMarker === undefined) {
+            if (existingAircraft.movingMarker == undefined) {
                 // Initialize moving marker if heading is known
-                if (head !== undefined) {
+                if (head != undefined) {
                     existingAircraft.movingMarker = L.Marker.movingMarker(
                         [[existingAircraft.lat, existingAircraft.long]], [0], { icon: planeIcon }
                     ).addTo(map);
@@ -236,8 +236,8 @@ function receiveSignal(map, ID, lat, long, head, alt, speed) {
                 existingAircraft.polyline.addLatLng([existingAircraft.lat, existingAircraft.long]);
             }
         }
-        if ((head !== undefined) && (existingAircraft.movingMarker !== undefined)) {
-            existingAircraft.movingMarker.setRotationAngle(head - 45); // -45 rotate for given icon
+        if ((head != undefined) && (existingAircraft.movingMarker != undefined)) {
+            existingAircraft.movingMarker.setRotationAngle(existingAircraft.head - 45); // -45 rotate for given icon
         }
 
         console.log("Updated Aircraft Data3:", "icao:", existingAircraft.ID, "lat:", existingAircraft.lat, "long:", existingAircraft.long,

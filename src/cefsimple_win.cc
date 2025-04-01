@@ -38,7 +38,6 @@ void copyHTML() {
         }
     }
 
-    Sleep(2000);
 }
 
 
