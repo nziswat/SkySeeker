@@ -144,14 +144,9 @@ void SimpleApp::OnContextInitialized() {
         new SimpleBrowserViewDelegate(runtime_style));
 
     // Optionally configure the initial show state.
-    cef_show_state_t initial_show_state = CEF_SHOW_STATE_NORMAL;
-    const std::string& show_state_value =
-        command_line->GetSwitchValue("initial-show-state");
-    if (show_state_value == "minimized") {
-      initial_show_state = CEF_SHOW_STATE_MINIMIZED;
-    } else if (show_state_value == "maximized") {
-      initial_show_state = CEF_SHOW_STATE_MAXIMIZED;
-    }
+    cef_show_state_t initial_show_state = CEF_SHOW_STATE_MAXIMIZED;
+
+
 #if defined(OS_MAC)
     // Hidden show state is only supported on MacOS.
     else if (show_state_value == "hidden") {
