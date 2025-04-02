@@ -187,7 +187,7 @@ void PostCefTask(MessageHandler* NewMessageHandler, const modesMessage& mm) {
 }
 
 int runRTL(MessageHandler* NewMessageHandler) {
-    messageHandler = NewMessageHandler;
+    messageHandler = NewMessageHandler; 
     HMODULE hDLL = LoadLibrary(L"rtlsdr.dll");
     if (!hDLL) {
 
@@ -282,18 +282,11 @@ int runRTL(MessageHandler* NewMessageHandler) {
     ////////////////////////////////
     //  Reading Raw Data
     ////////////////////////////////
+
     unsigned char buffer[BUFFER_SIZE];
     int bytes_read;
     exitDriverThread = false;
-    //AllocConsole();
-    //FILE* fDummy;
-    //freopen_s(&fDummy, "CONOUT$", "w", stdout);
-    //freopen_s(&fDummy, "CONOUT$", "w", stderr);
-    //freopen_s(&fDummy, "CONIN$", "r", stdin);
-    //std::cout.clear();
-    //std::clog.clear();
-    //std::cerr.clear();
-    //std::cin.clear();
+
     while (true) {
         if (rtlsdr_read_sync(dev, buffer, sizeof(buffer), &bytes_read) < 0) {
             std::cerr << "Failed to read from device" << std::endl;
@@ -301,32 +294,12 @@ int runRTL(MessageHandler* NewMessageHandler) {
         std::memcpy(dataloop.data, buffer, BUFFER_SIZE);
         calculateMag();
         detectModeS(dataloop.magnitude, BUFFER_SIZE / 2);
+        exitDriverThread = messageHandler->driverStatus;
         if (exitDriverThread) {
             std::cout << "Shutting Down LibUSB" << std::endl;
             break;
         }
     }
-    
-    //if (rtlsdr_read_sync(dev, buffer, sizeof(buffer), &bytes_read) < 0) {
-    //    std::cerr << "Failed to read from device" << std::endl;
-    //}
-    //else {
-    //    /*
-    //    std::cout << "Read " << bytes_read << " bytes of raw IQ data" << std::endl;
-    //    for (int i = 0; i < bytes_read; ++i) {
-    //        std::cout << std::setw(2) << std::setfill('0') << static_cast<int>(buffer[i]) << " ";
-    //        if ((i + 1) % 16 == 0) {
-    //            std::cout << std::endl;
-    //        }
-    //    }*/
-    //
-    //
-    //    std::memcpy(dataloop.data, buffer, BUFFER_SIZE);
-    //    calculateMag();
-    //    detectModeS(dataloop.magnitude, BUFFER_SIZE / 2);
-    //}
-
-    
 
     rtlsdr_close(dev);
     FreeLibrary(hDLL);

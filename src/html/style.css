@@ -46,7 +46,7 @@ body {
   font-size: 150%;
 }
 
-.button1 {
+.button1 {/* why does this even exist?*/
   padding: 10px 50px;
   background-color: #79a5b4;
   border: none;
@@ -57,4 +57,9 @@ body {
 
 .button:hover {
   background-color: #495e76;
+}
+
+.button:active {
+    background-color: white;
+    color: #79a5b4;
 }

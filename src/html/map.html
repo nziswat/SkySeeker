@@ -75,15 +75,10 @@
             <img src="media/planegif.gif" alt="Animated Logo" class="header-gif">
         </div>
         <div class="button-container">
-            <button class="button1">Map</button>
+            <button onclick="startStopDriver()" class="button">Start/Stop Driver</button>
+            <button class="button">Map</button>
             <button class="button">What's Above Me?</button>
             <a href="log.html"><button class="button">Personal Log</button></a>
-            
-            <!-- DEBUG BUTTON -->
-            <button onclick="spawnAircraft()">Spawn Aircraft</button>
-
-
-
         </div>
     </header>
 
@@ -109,6 +104,19 @@
             console.log("Debug input received, input is as follows:");
             console.log(input);
         };
+
+
+        function startStopDriver() {
+            window.cefQuery({
+                request: "startStopDriver",
+                onSuccess: function (response) {
+                    console.log("Driver toggled: " + response);
+                },
+                onFailure: function (error_code, error_message) {
+                    console.error("CEF Query Failed:", error_code, error_message);
+                }
+            });
+        }
 
 
         function updateAircraftData(data) {
@@ -159,21 +167,6 @@
             iconSize: [40, 40],
             iconAnchor: [20, 20] // Rotate around the center of the icon
         });
-        /*
-        // Make an Aircraft object
-        const plane = new Aircraft("Flight123", 27.947954, -82.466856, 0, 30000, 400, '', '');
-
-        // Initialize moving marker
-        const movingMarker = L.Marker.movingMarker(
-            [[plane.lat, plane.long]], [0], { icon: planeIcon }
-        ).addTo(map);
-
-        // Create a polyline to track the plane's path
-        const polyline = L.polyline([], { color: 'blue' }).addTo(map);
-
-        // Perform the simulation
-        circle(plane, -82.466856, 27.947954, 0.05, 36, 3, 1, movingMarker, polyline);
-        */
     </script>
 </body>
 </html>

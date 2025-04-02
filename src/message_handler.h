@@ -3,36 +3,32 @@
 #include "include/wrapper/cef_message_router.h"
 #include "src/structs.h"
 #include <string>
+#include <thread>
 
 class MessageHandler : public CefMessageRouterBrowserSide::Handler, public CefBaseRefCounted {
 public:
 
     CefRefPtr<CefBrowser> browser_ref_m; //should keep a reference to the browser at all times.
+    std::atomic<bool> driverStatus = 0; //initial state of the driver
 
-    //// Previous Debug Code
-    /*
+
+    //Query code, which is used for when the browser calls back to CEF
     bool OnQuery(CefRefPtr<CefBrowser> browser,
         CefRefPtr<CefFrame> frame,
         int64_t query_id,
         const CefString& request,
         bool persistent,
         CefRefPtr<Callback> callback) override {
-        if (request == "spawn_aircraft") {
-            // Sample aircraft data
-            std::string json = R"({
-                "ID": "Flight777",
-                "lat": 27.95,
-                "long": -82.45,
-                "head": 90,
-                "alt": 32000,
-                "speed": 450
-            })";
+        if (request == "startStopDriver") {
+            driverStatus = !driverStatus;
 
 
-            sendDebug("asdf", browser);
+            // Send response back to JS
+            callback->Success(driverStatus ? "Driver Stopped" : "Driver Started");
             return true;
         }
-        return false;
+
+        return false;  // wrong query
     }
 
         void sendPacket(aircraftPacket packet,
@@ -42,7 +38,9 @@ public:
                 "console.log('Hello from C++!');",
                 browser->GetMainFrame()->GetURL(),
                 0);
-    }*/
+    }
+
+
 
         //sends a string
         void sendDebug(std::string debug) {

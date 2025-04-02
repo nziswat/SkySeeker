@@ -91,8 +91,6 @@ void SimpleHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
       message_handler_->browser_ref_m = browser; // finally works at this fucking point
       std::thread rtlThread(&runRTL, message_handler_.get());
       rtlThread.detach();
-      //std::thread testThread(&testLoop, message_handler_.get());
-      //testThread.detach();
       ++track;
   };
 }
