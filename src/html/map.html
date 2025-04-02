@@ -123,7 +123,7 @@
             let aircraftData = data;
             let icao = aircraftData.icao;
             let speed;
-            console.log("Updated Aircraft Data1:", "icao:", icao, "lat:", aircraftData.raw_latitude, "long:", aircraftData.raw_longitude, "head:", aircraftData.heading, "alt:", aircraftData.altitude);
+            //console.log("Updated Aircraft Data1:", "icao:", icao, "lat:", aircraftData.raw_latitude, "long:", aircraftData.raw_longitude, "head:", aircraftData.heading, "alt:", aircraftData.altitude);
             if ((aircraftData.heading == null) || (aircraftData.heading == undefined)){
                 if ((aircraftData.ew_velocity != null) || (aircraftData.ew_velocity != undefined)){
                     aircraftData.heading = Math.atan2(aircraftData.ew_velocity, aircraftData.ns_velocity) * 180 / Math.PI;
@@ -153,8 +153,8 @@
             if (aircraftData.fflag == null) {
                 aircraftData.fflag = undefined;
             }
-            console.log("Updated Aircraft Data2:", "icao:", icao, "lat:", aircraftData.raw_latitude, "long:", aircraftData.raw_longitude, "ns vel:", aircraftData.ns_velocity, "ew vel:",
-                aircraftData.ew_velocity, "head:", aircraftData.heading, "alt:", aircraftData.altitude, "speed:", speed);
+            //console.log("Updated Aircraft Data2:", "icao:", icao, "lat:", aircraftData.raw_latitude, "long:", aircraftData.raw_longitude, "ns vel:", aircraftData.ns_velocity, "ew vel:",
+            //    aircraftData.ew_velocity, "head:", aircraftData.heading, "alt:", aircraftData.altitude, "speed:", speed);
             receiveSignal(map, aircraftData.icao, aircraftData.raw_latitude, aircraftData.raw_longitude, aircraftData.heading, aircraftData.altitude, speed, aircraftData.fflag) 
         }
 

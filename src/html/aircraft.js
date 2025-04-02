@@ -111,17 +111,21 @@ class Aircraft {
         let j = Math.floor(59 * this.e_lat - 60 * this.o_lat + 0.5)
         let de_lat = 6;
         let do_lat = (360 / 59);
-        this.e_lat = de_lat * ((j % 60) + this.e_lat);
-        this.o_lat = do_lat * ((j % 59) + this.o_lat);
+        let new_e_lat = this.e_lat
+        let new_o_lat = this.o_lat
+        let new_e_long = this.e_long
+        let new_o_long = this.o_long
+        new_e_lat = de_lat * ((j % 60) + new_e_lat);
+        new_o_lat = do_lat * ((j % 59) + new_o_lat);
 
-        if (this.e_lat >= 270) {
-            this.e_lat -= 360;
+        if (new_e_lat >= 270) {
+            new_e_lat -= 360;
         }
-        if (this.o_lat >= 270) {
-            this.o_lat -= 360;
+        if (new_o_lat >= 270) {
+            new_o_lat -= 360;
         }
-        let e_NL = this.NL(this.e_lat);
-        let o_NL = this.NL(this.o_lat);
+        let e_NL = this.NL(new_e_lat);
+        let o_NL = this.NL(new_o_lat);
 
         // If the NL functions don't match, the signals are from different points, quit calculation
         if (e_NL != o_NL) {
@@ -132,9 +136,9 @@ class Aircraft {
 
         // Choose the newest latitude
         if (this.newestIsOdd) {
-            calculated_lat = this.o_lat;
+            calculated_lat = new_o_lat;
         } else {
-            calculated_lat = this.e_lat;
+            calculated_lat = new_e_lat;
         }
 
         // Calculate longitude
@@ -143,8 +147,8 @@ class Aircraft {
         if (this.newestIsOdd) {
             let n = Math.max(o_NL - 1, 1)
             let DLong = 360 / n
-            let m = Math.floor(this.e_long * (o_NL - 1) - this.o_long * o_NL + 0.5);
-            calculated_long = DLong * ((m % n) + this.o_long);
+            let m = Math.floor(new_e_long * (o_NL - 1) - new_o_long * o_NL + 0.5);
+            calculated_long = DLong * ((m % n) + new_o_long);
 
             if (calculated_long >= 180) {
                 calculated_long -= 360;
@@ -154,8 +158,8 @@ class Aircraft {
         else {
             let n = Math.max(e_NL, 1)
             let DLong = 360 / n
-            let m = Math.floor(this.e_long * (e_NL - 1) - this.o_long * e_NL + 0.5);
-            calculated_long = DLong * ((m % n) + this.e_long);
+            let m = Math.floor(new_e_long * (e_NL - 1) - new_o_long * e_NL + 0.5);
+            calculated_long = DLong * ((m % n) + new_e_long);
 
             if (calculated_long >= 180) {
                 calculated_long -= 360;
@@ -163,10 +167,19 @@ class Aircraft {
         }
 
         // Update the lat and long properties
-        this.lat = calculated_lat;
-        this.long = calculated_long;
 
-        // Return true since you successfully calculated the lat long
+
+        if (Math.abs(this.lat - calculated_lat) > 1 || Math.abs(this.long - calculated_long) > 1) { // if the new coords are more than 1 value greater, it is probably an error
+            console.log(`Significant change detected for ${this.ID}: lat(${this.lat} -> ${calculated_lat}), long(${this.long} -> ${calculated_long})\n
+            even values: ${this.e_lat}, ${this.e_long}\todd values: ${this.o_lat}, ${this.o_long}`);
+        }
+        else {
+            this.lat = calculated_lat;
+            this.long = calculated_long;
+        }
+        
+
+        // Return true since you successfully calculated the lat long, even if they weren't actually updated 
         return true;
     }
 
@@ -195,8 +208,8 @@ function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
         if ((lat != undefined) && (long != undefined)) {
             newAircraft.updateLatLong(lat, long, fflag);
         }
-        console.log("Updated Aircraft Data3:", "icao:", newAircraft.ID, "lat:", newAircraft.lat, "long:", newAircraft.long,
-            "head:", newAircraft.head, "alt:", newAircraft.alt, "speed:", newAircraft.speed);
+        //console.log("Updated Aircraft Data3:", "icao:", newAircraft.ID, "lat:", newAircraft.lat, "long:", newAircraft.long,
+        //    "head:", newAircraft.head, "alt:", newAircraft.alt, "speed:", newAircraft.speed);
 
     }
     // If it does exist, update the aircraft object
