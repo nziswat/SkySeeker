@@ -40,10 +40,20 @@
         }
 
         /* Floating table on the left side */
-        #infoTable {
+        #detailTable {
             position: absolute;
             top: 300px;
             left: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+        #aircraftTable {
+            position: absolute;
+            top: 300px;
+            right: 10px;
             background: rgba(255, 255, 255, 0.8);
             padding: 10px;
             border-radius: 8px;
@@ -83,7 +93,7 @@
     </header>
 
     <!-- Floating Table -->
-    <div id="infoTable">
+    <div id="detailTable">
         <table>
             <tr><th>Property</th><th>Value</th></tr>
             <tr><td>ID</td><td id="planeID"></td></tr>
@@ -94,6 +104,10 @@
             <tr><td>Speed</td><td id="planeSpeed"></td></tr>
         </table>
     </div>
+
+    <!-- Table of All Aircraft -->
+    <div id="aircraftTable"></div>
+
 
     <!-- Map container -->
     <div id="map"></div>
@@ -124,8 +138,8 @@
             let icao = aircraftData.icao;
             let speed;
             //console.log("Updated Aircraft Data1:", "icao:", icao, "lat:", aircraftData.raw_latitude, "long:", aircraftData.raw_longitude, "head:", aircraftData.heading, "alt:", aircraftData.altitude);
-            if ((aircraftData.heading == null) || (aircraftData.heading == undefined)){
-                if ((aircraftData.ew_velocity != null) || (aircraftData.ew_velocity != undefined)){
+            if ((aircraftData.heading == null) || (aircraftData.heading == undefined)) {
+                if ((aircraftData.ew_velocity != null) || (aircraftData.ew_velocity != undefined)) {
                     aircraftData.heading = Math.atan2(aircraftData.ew_velocity, aircraftData.ns_velocity) * 180 / Math.PI;
                 }
             }
@@ -155,11 +169,15 @@
             }
             //console.log("Updated Aircraft Data2:", "icao:", icao, "lat:", aircraftData.raw_latitude, "long:", aircraftData.raw_longitude, "ns vel:", aircraftData.ns_velocity, "ew vel:",
             //    aircraftData.ew_velocity, "head:", aircraftData.heading, "alt:", aircraftData.altitude, "speed:", speed);
-            receiveSignal(map, aircraftData.icao, aircraftData.raw_latitude, aircraftData.raw_longitude, aircraftData.heading, aircraftData.altitude, speed, aircraftData.fflag) 
+            receiveSignal(map, aircraftData.icao, aircraftData.raw_latitude, aircraftData.raw_longitude, aircraftData.heading, aircraftData.altitude, speed, aircraftData.fflag);
+            forceUpdateAircraftTable(hashMap)
+            //printHashMap(hashMap);
         }
 
         // Initialize map
         const map = initializeMap("map", [27.947954, -82.466856], 12); // Default: Tampa
+        // Initialize aircraft table
+        createAircraftTable()
 
         // Initialize plane icon
         const planeIcon = L.icon({

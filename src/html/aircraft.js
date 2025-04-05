@@ -253,8 +253,8 @@ function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
             existingAircraft.movingMarker.setRotationAngle(existingAircraft.head - 45); // -45 rotate for given icon
         }
 
-        console.log("Updated Aircraft Data3:", "icao:", existingAircraft.ID, "lat:", existingAircraft.lat, "long:", existingAircraft.long,
-            "head:", existingAircraft.head, "alt:", existingAircraft.alt, "speed:", existingAircraft.speed);
+        //console.log("Updated Aircraft Data3:", "icao:", existingAircraft.ID, "lat:", existingAircraft.lat, "long:", existingAircraft.long,
+        //   "head:", existingAircraft.head, "alt:", existingAircraft.alt, "speed:", existingAircraft.speed);
 
         // Update the table with the current information
         //updateTable(existingAircraft);
