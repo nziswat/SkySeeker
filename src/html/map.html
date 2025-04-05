@@ -140,7 +140,13 @@
             //console.log("Updated Aircraft Data1:", "icao:", icao, "lat:", aircraftData.raw_latitude, "long:", aircraftData.raw_longitude, "head:", aircraftData.heading, "alt:", aircraftData.altitude);
             if ((aircraftData.heading == null) || (aircraftData.heading == undefined)) {
                 if ((aircraftData.ew_velocity != null) || (aircraftData.ew_velocity != undefined)) {
-                    aircraftData.heading = Math.atan2(aircraftData.ew_velocity, aircraftData.ns_velocity) * 180 / Math.PI;
+                    //find heading, first get parity
+                    let nsVelocity = aircraftData.ns_velocity * (2 * aircraftData.ns_dir - 1);  //parity is given as 0, 1 not -1, 1
+                    let ewVelocity = aircraftData.ew_velocity * (2 * aircraftData.ew_dir - 1);  //this just makes it -1 or 1
+                    aircraftData.heading = Math.atan2(ewVelocity, nsVelocity) * 180 / Math.PI;
+                    if (aircraftData.heading < 0) {
+                        aircraftData.heading += 360 // turn negatives into positives
+                    }
                 }
             }
 

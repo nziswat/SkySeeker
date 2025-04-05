@@ -250,7 +250,7 @@ function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
             }
         }
         if ((head != undefined) && (existingAircraft.movingMarker != undefined)) {
-            existingAircraft.movingMarker.setRotationAngle(existingAircraft.head - 45); // -45 rotate for given icon
+            existingAircraft.movingMarker.setRotationAngle(existingAircraft.head +135); // +135 rotate for given icon
         }
 
         //console.log("Updated Aircraft Data3:", "icao:", existingAircraft.ID, "lat:", existingAircraft.lat, "long:", existingAircraft.long,
