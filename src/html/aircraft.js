@@ -239,6 +239,10 @@ function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
                     existingAircraft.movingMarker = L.Marker.movingMarker(
                         [[existingAircraft.lat, existingAircraft.long]], [0], { icon: planeIcon }
                     ).addTo(map);
+
+                    existingAircraft.movingMarker.on('click', function (e) { //binds clicking the marker to the update detail table function
+                        updateDetailTable(e, existingAircraft);
+                    });
                 }
                 // Create a polyline to track the plane's path
                 existingAircraft.polyline = L.polyline([], { color: 'blue' }).addTo(map);
@@ -253,6 +257,11 @@ function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
             existingAircraft.movingMarker.setRotationAngle(existingAircraft.head +135); // +135 rotate for given icon
         }
 
+        if (selectedAircraft != undefined){ 
+        if (existingAircraft.ID == selectedAircraft.ID) {
+            updateDetailTable("?", existingAircraft);
+        }
+        }
         //console.log("Updated Aircraft Data3:", "icao:", existingAircraft.ID, "lat:", existingAircraft.lat, "long:", existingAircraft.long,
         //   "head:", existingAircraft.head, "alt:", existingAircraft.alt, "speed:", existingAircraft.speed);
 

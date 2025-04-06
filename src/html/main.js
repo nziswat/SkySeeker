@@ -114,8 +114,18 @@ function sortTable() {
     
 
 //use when clicking on a single plane
-function updateDetailTable(plane) {
+function updateDetailTable(e, aircraft) {
+    const container = document.getElementById('detailTable');
+    const table = container.firstChild; //the actual table should be the only child
+    selectedAircraft = aircraft;
 
+
+    document.getElementById('planeID').textContent = aircraft.ID;
+    document.getElementById('planeLat').textContent = aircraft.lat.toFixed(3);
+    document.getElementById('planeLong').textContent = aircraft.long.toFixed(3);
+    document.getElementById('planeHead').textContent = aircraft.head.toFixed(2);
+    document.getElementById('planeAlt').textContent = aircraft.alt;
+    document.getElementById('planeSpeed').textContent = aircraft.speed.toFixed(0);
 }
 
 //debug
@@ -125,3 +135,5 @@ function printHashMap(hmap) {
         console.log(`HMAP Debug info:`, value);
     });
 }
+
+let selectedAircraft;

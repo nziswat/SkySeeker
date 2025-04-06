@@ -4,14 +4,7 @@ function sleep(ms) {
 }
 
 // Function to update the table
-function updateTable(plane) {
-    document.getElementById('planeID').textContent = plane.ID;
-    document.getElementById('planeLat').textContent = plane.lat.toFixed(6);
-    document.getElementById('planeLong').textContent = plane.long.toFixed(6);
-    document.getElementById('planeHead').textContent = plane.head.toFixed(2);
-    document.getElementById('planeAlt').textContent = plane.alt;
-    document.getElementById('planeSpeed').textContent = plane.speed;
-}
+
 
 // Function to make the plane move in a circle
 async function circle(plane, a, b, r, n, loops, s, movingMarker, polyline, map) {
