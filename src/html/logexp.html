@@ -5,82 +5,99 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Log Page</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .subheader {
+            position: fixed; /* Fixed to top just below main header */
+            z-index: 3;
+            display: flex;
+            justify-content: flex-start; /* Aligns items to the left */
+            align-items: center;
+            background-color: #d8d8d8;
+            padding: 25px 40px;
+            color: grey;
+            border-style: solid;
+            border-width: 1px;
+            border-color: rgb(116, 115, 115);
+            min-height: 20px;
+            width: 100%;
+            gap: 380px; /* Adds space between the title and buttons */
+        }
+
+        .subheader-spacer {
+            position: static; /* Gives space for subheader at top of page */
+            z-index: -1;
+            display: flex;
+            justify-content: flex-start; /* Aligns items to the left */
+            align-items: center;
+            background-color: #d8d8d8;
+            padding: 25px 40px;
+            color: grey;
+            border-style: solid;
+            border-width: 1px;
+            border-color: rgb(116, 115, 115);
+            min-height: 20px;
+            width: 100%;
+            gap: 380px; /* Adds space between the title and buttons */
+        }
+
+        .categories-title {
+            font-size: 2em; /* Adjusted font size */
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .categories-container {
+            display: flex;
+            gap: 60px; /* Adjust spacing between buttons */
+        }
+
+        .catbutton {
+            padding: 10px 50px;
+            background-color: #ffffff;
+            border: none;
+            color: grey;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 170%;
+        }
+
+            .catbutton:hover {
+                background-color: #cecfd0;
+            }
+
+        /* Cards Section */
+        .cards-container {
+            display: flex;
+            justify-content: center;
+            gap: 100px; /* Space between cards */
+            margin-top: 30px;
+            padding: 20px;
+        }
+
+        .card {
+            z-index: 0;
+            background-color: #f8f8f8;
+            width: 1700px;
+            height: 700px;
+            border-radius: 30px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3);
+            }
+    </style>
 </head>
-<style>
-.subheader {
-  display: flex;
-  justify-content: flex-start; /* Aligns items to the left */
-  align-items: center;
-  background-color: #d8d8d8;
-  padding: 25px 40px;
-  color: grey;
-  border-style: solid;
-  border-width: 1px;
-  border-color: rgb(116, 115, 115);
-  min-height: 20px;
-  gap: 380px; /* Adds space between the title and buttons */
-}
-
-
-.categories-title {
-  font-size: 2em; /* Adjusted font size */
-  font-weight: bold;
-  margin: 0;
-}
-
-.categories-container {
-  display: flex;
-  gap: 60px; /* Adjust spacing between buttons */
-}
-
-.catbutton {
-  padding: 10px 50px;
-  background-color: #ffffff;
-  border: none;
-  color: grey;
-  cursor: pointer;
-  border-radius: 5px;
-  font-size: 170%;
-}
-
-.catbutton:hover {
-  background-color: #cecfd0;
-}
-
-/* Cards Section */
-.cards-container {
-    display: flex;
-    justify-content: center;
-    gap: 100px; /* Space between cards */
-    margin-top: 30px;
-    padding: 20px;
-}
-
-.card {
-    background-color: #f8f8f8;
-    width: 1700px;
-    height: 700px;
-    border-radius: 30px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.5em;
-    font-weight: bold;
-    color: #333;
-    text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    cursor: pointer;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3);
-}
-
-
-</style>
-
 <body>
     <header class="header">
         <div class="logo-container">
@@ -94,11 +111,22 @@
         </div>
     </header>
 
-    
+    <div class="header-spacer">
+        <div class="logo-container">
+            <h1 class="header-title">SkySeeker</h1>
+            <img src="media/planegif.gif" alt="Animated Logo" class="header-gif">
+        </div>
+        <div class="button-container">
+            <a href="map.html"><button class="button">Map</button></a>
+            <button class="button">What's Above Me?</button>
+            <button class="button1">Personal Log</button>
+        </div>
+    </div>
+
     <div class="subheader">
-    
+
         <h2 class="categories-title">Categories:</h2>
-        
+
         <div class="categories-container">
             <button class="catbutton"><b>Airline</b></button>
             <button class="catbutton"><b>Model</b></button>
@@ -109,12 +137,25 @@
         </div>
     </div>
 
+    <div class="subheader-spacer">
+
+        <h2 class="categories-title">Categories:</h2>
+
+        <div class="categories-container">
+            <button class="catbutton"><b>Airline</b></button>
+            <button class="catbutton"><b>Model</b></button>
+            <button class="catbutton"><b>A</b></button>
+            <button class="catbutton"><b>B</b></button>
+            <button class="catbutton"><b>Sort ^/v</b></button>
+
+        </div>
+    </div>
 
     <!-- Cards Section -->
-<div class="cards-container">
-    <a href="log.html"> <div class="card">opened<br>(click me)</div></a>
+    <div class="cards-container">
+        <a href="log.html"> <div class="card">opened<br>(click me)</div></a>
 
-</div>
+    </div>
 
 
 </body>

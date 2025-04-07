@@ -3,15 +3,32 @@ body {
   font-family: Arial, sans-serif;
   background-color: #cfcfcf;
 }
+
 .header {
-  display: flex;
-  justify-content: flex-start; /* Aligns items to the left */
-  align-items: center;
-  background-color: #333;
-  padding: 2px 20px;
-  color: white;
-  min-height: 20px;
-  gap: 375px; /* Adds space between the logo and buttons */
+    position: fixed; /* Fixed to top */
+    z-index: 3;
+    display: flex;
+    justify-content: flex-start; /* Aligns items to the left */
+    align-items: center;
+    background-color: #333;
+    padding: 2px 20px;
+    color: white;
+    min-height: 20px;
+    width: 100%;
+    gap: 10%; /* Adds space between the logo and buttons */
+}
+
+.header-spacer {
+    position: static; /* Gives space for subheader at top of page */
+    z-index: -1;
+    display: flex;
+    justify-content: flex-start; /* Aligns items to the left */
+    align-items: center;
+    background-color: #333;
+    padding: 2px 20px;
+    color: white;
+    min-height: 20px;
+    gap: 10%; /* Adds space between the logo and buttons */
 }
 
 .logo-container {
@@ -33,7 +50,11 @@ body {
 
 .button-container {
   display: flex;
-  gap: 120px; /* Adjust spacing between buttons */
+  /*gap: 120px; /* Adjust spacing between buttons */
+  justify-content: space-around;
+  flex: 1;
+  flex-direction: row;
+  width: 100vh;
 }
 
 .button {
