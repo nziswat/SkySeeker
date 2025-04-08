@@ -72,6 +72,14 @@ class Aircraft {
     get newestIsOdd() { return this._newestIsOdd; }
 
 
+    // Save lasr calculated lat and long in case of overriding incorrect first position
+    set prev_lat(prev_lat) { this._prev_lat = prev_lat; }
+    get prev_lat() { return this._prev_lat; }
+
+    set prev_long(prev_long) { this._prev_long = prev_long; }
+    get prev_long() { return this._prev_long; }
+
+
     // https://airmetar.main.jp/radio/ADS-B%20Decoding%20Guide.pdf
     // Method to update the latitude and longitude
     updateLatLong(raw_lat, raw_long, fflag) {
@@ -168,16 +176,45 @@ class Aircraft {
 
         // Update the lat and long properties
 
+        /* // Code to only show plane if you get two correct lat longs, commented out because its too slow
+        if ((this.lat == undefined) || (this.long == undefined)) { // If undefined, dont update until you get 2 similar in a row
 
-        if (Math.abs(this.lat - calculated_lat) > 1 || Math.abs(this.long - calculated_long) > 1) { // if the new coords are more than 1 value greater, it is probably an error
-            console.log(`Significant change detected for ${this.ID}: lat(${this.lat} -> ${calculated_lat}), long(${this.long} -> ${calculated_long})\n
-            even values: ${this.e_lat}, ${this.e_long}\todd values: ${this.o_lat}, ${this.o_long}`);
-        }
-        else {
+            if (Math.abs(this.prev_lat - calculated_lat) <= 1 && Math.abs(this.prev_long - calculated_long) <= 1) { // If you recieve two signals in a row are close, update the lat long
+                this.lat = calculated_lat;
+                this.long = calculated_long;
+            }
+
+        }        
+        */
+
+        if ((this.lat == undefined) || (this.long == undefined)){ // Just update if undefined
+            this.lat = calculated_lat;
+            this.long = calculated_long;
+        }        
+        else if (Math.abs(this.lat - calculated_lat) <= 1 && Math.abs(this.long - calculated_long) <= 1) { // if the new coords are not more than 1 value greater, it is probably not an error
             this.lat = calculated_lat;
             this.long = calculated_long;
         }
-        
+        else if (Math.abs(this.prev_lat - calculated_lat) <= 1 && Math.abs(this.prev_long - calculated_long) <= 1) { // If you recieve two signals in a row are far from current but close to each other, the first lat long was likely incorrect, so overrwrite it
+            console.log(`Overriding incorrect coords; Significant change detected for ${this.ID}: lat(${this.lat} -> ${calculated_lat}), long(${this.long} -> ${calculated_long})\n
+            even values: ${this.e_lat}, ${this.e_long}\todd values: ${this.o_lat}, ${this.o_long}`);
+            this.lat = calculated_lat;
+            this.long = calculated_long;
+
+            // Reset incorrect polyline coordinate(s)
+            if (this.polyline) {
+                this.polyline.setLatLngs([]);
+            }
+            
+        }
+        else { // if the new coords are more than 1 value greater, it is probably an error
+            console.log(`Significant change detected for ${this.ID}: lat(${this.lat} -> ${calculated_lat}), long(${this.long} -> ${calculated_long})\n
+            even values: ${this.e_lat}, ${this.e_long}\todd values: ${this.o_lat}, ${this.o_long}`);
+        }
+
+        // Save the calcuated values in case of overriding incorrect first position
+        this.prev_lat = calculated_lat;
+        this.prev_long = calculated_long;
 
         // Return true since you successfully calculated the lat long, even if they weren't actually updated 
         return true;
@@ -235,7 +272,7 @@ function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
             // If moving marker and polyline are undefined, initialize them
             if (existingAircraft.movingMarker == undefined) {
                 // Initialize moving marker if heading is known
-                if (head != undefined) {
+                if (existingAircraft.head != undefined) {
                     existingAircraft.movingMarker = L.Marker.movingMarker(
                         [[existingAircraft.lat, existingAircraft.long]], [0], { icon: planeIcon }
                     ).addTo(map);
@@ -245,7 +282,7 @@ function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
                     });
                 }
                 // Create a polyline to track the plane's path
-                existingAircraft.polyline = L.polyline([], { color: 'blue' }).addTo(map);
+                existingAircraft.polyline = L.polyline([[existingAircraft.lat, existingAircraft.long]], { color: 'blue', opacity: 0 }).addTo(map);
             }
             // Otherwise, just update the movingMarker and polyline like normal
             else {
@@ -264,9 +301,6 @@ function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
         }
         //console.log("Updated Aircraft Data3:", "icao:", existingAircraft.ID, "lat:", existingAircraft.lat, "long:", existingAircraft.long,
         //   "head:", existingAircraft.head, "alt:", existingAircraft.alt, "speed:", existingAircraft.speed);
-
-        // Update the table with the current information
-        //updateTable(existingAircraft);
     }
         
 }

@@ -119,6 +119,18 @@ function updateDetailTable(e, aircraft) {
     const table = container.firstChild; //the actual table should be the only child
     selectedAircraft = aircraft;
 
+    // Make all polylines transparent/invisible
+    hashMap.forEach((value, key) => {
+        if (value.polyline) { 
+            value.polyline.setStyle({
+                opacity: 0
+            });
+        }
+    });
+    // Make selected aircraft polyline visible
+    aircraft.polyline.setStyle({
+        opacity: 1
+    });
 
     document.getElementById('planeID').textContent = aircraft.ID;
     document.getElementById('planeLat').textContent = aircraft.lat.toFixed(3);
@@ -126,6 +138,7 @@ function updateDetailTable(e, aircraft) {
     document.getElementById('planeHead').textContent = aircraft.head.toFixed(2);
     document.getElementById('planeAlt').textContent = aircraft.alt;
     document.getElementById('planeSpeed').textContent = aircraft.speed.toFixed(0);
+
 }
 
 //debug
