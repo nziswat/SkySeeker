@@ -284,8 +284,7 @@ int runRTL(MessageHandler* NewMessageHandler) {
     ////////////////////////////////
     //  Reading Raw Data
     ////////////////////////////////
-
-    unsigned char buffer[BUFFER_SIZE];
+    unsigned char buffer[BUFFER_SIZE]; //this is huge on the stack. TODO move to heap
     int bytes_read;
     exitDriverThread = false;
 
