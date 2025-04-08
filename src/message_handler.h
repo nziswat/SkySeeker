@@ -4,6 +4,7 @@
 #include "src/structs.h"
 #include <string>
 #include <thread>
+#include "skyseekerTSV.h"
 
 class MessageHandler : public CefMessageRouterBrowserSide::Handler, public CefBaseRefCounted {
 public:
@@ -27,6 +28,20 @@ public:
             callback->Success(driverStatus ? "Driver Stopped" : "Driver Started");
             return true;
         }
+
+        //sliced requests past this point
+
+        std::string fullReq = request.ToString();
+        std::string firsthalf = fullReq.substr(0,11);
+        std::string secondhalf = fullReq.substr(11, 17);
+        if (request == "getICAOData") {// check first 10 chars
+            std::string icao = secondhalf;// next 6 are ICAO code
+			//std::string icao = "LALALA";
+            icaoData data{};
+            TSV::getDataForICAO(icao, data);
+			callback->Success(icao);
+			return true;
+		}
 
         return false;  // wrong query
     }
@@ -59,13 +74,16 @@ public:
 
 
 
+
+
 private:
     IMPLEMENT_REFCOUNTING(MessageHandler);
 };
 
-class MyCefTask : public CefTask {
+//task for sending packet to aircraft object in js
+class AirPacketCefTask : public CefTask {
 public:
-    MyCefTask(MessageHandler* handler, const std::string& message)
+    AirPacketCefTask(MessageHandler* handler, const std::string& message)
         : handler_(handler), message_(message) {}
 
     void Execute() override {
@@ -77,5 +95,26 @@ public:
 private:
     MessageHandler* handler_;
     std::string message_;
-    IMPLEMENT_REFCOUNTING(MyCefTask);
+    IMPLEMENT_REFCOUNTING(AirPacketCefTask);
 };
+
+
+//task for sending data from .TSV to aircraft object in js (might not be used)
+class getDataCefTask : public CefTask {
+public:
+    getDataCefTask(MessageHandler* handler, const std::string& message)
+        : handler_(handler), message_(message) {
+    }
+
+    void Execute() override {
+        if (handler_) {
+            handler_->sendToJS("getICAOData", message_);
+        }
+    }
+
+private:
+    MessageHandler* handler_;
+    std::string message_;
+    IMPLEMENT_REFCOUNTING(getDataCefTask);
+};
+

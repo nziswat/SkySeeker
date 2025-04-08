@@ -3,6 +3,7 @@
 #include <sstream>
 #include <vector>
 #include "skyseekerTSV.h"
+#include <src/json.h>
 
 //for debuggin
 void printIcaoData(const icaoData& data) {
@@ -25,7 +26,7 @@ void fillEmptyData(icaoData& data) {
 	}
 }
 
-void TSV::getDataForICAO(const std::string& icao, icaoData& data) {
+void TSV::getDataForICAO(std::string& icao, icaoData& data) {
 	std::ifstream file("data/modes.tsv");
 	if (!file.is_open()) {
 		std::cout << "modes.tsv not found in data dir" << std::endl;
@@ -34,21 +35,21 @@ void TSV::getDataForICAO(const std::string& icao, icaoData& data) {
 
 	std::string line;
 	while (std::getline(file, line)) {
-		int tab1 = line.find('\t');
+		size_t tab1 = line.find('\t');
 		if (tab1 == std::string::npos) {
 			continue;
 		}
 
-		int tab2 = line.find('\t', tab1 + 1);
+		size_t tab2 = line.find('\t', tab1 + 1);
 		if (tab2 == std::string::npos) {
 			continue;
 		}
 
-		int tab3 = line.find('\t', tab2 + 1);
+		size_t tab3 = line.find('\t', tab2 + 1);
 		std::string token = (tab3 == std::string::npos) ? line.substr(tab2 + 1) : line.substr(tab2 + 1, tab3 - tab2 - 1);
 
 		if (token == icao) {
-			int tab4 = (tab3 != std::string::npos) ? line.find('\t', tab3 + 1) : std::string::npos;
+			size_t tab4 = (tab3 != std::string::npos) ? line.find('\t', tab3 + 1) : std::string::npos;
 			data.country = line.substr(0, tab1);
 			data.registration = line.substr(tab1 + 1, tab2 - tab1 - 1);
 			data.typeCode = token;
@@ -58,7 +59,13 @@ void TSV::getDataForICAO(const std::string& icao, icaoData& data) {
 	}
 
 	file.close();
-	fillEmptyData(data);
+	fillEmptyData(data); // replace all with empty
+	nlohmann::json j; // struct to json for js handling
+	j["country"] = data.country;
+	j["registration"] = data.registration;
+	j["typeCode"] = data.typeCode;
+	j["isMilitary"] = data.isMilitary;
+	icao = j.dump(); // just overwrite the handover string lol
 }
 
 //Dear Kevbo, this is how u use this

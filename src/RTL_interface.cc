@@ -180,7 +180,7 @@ void PostCefTask(MessageHandler* NewMessageHandler, const modesMessage& mm) {
     std::string jsonMessage = root.dump();
 
     // Send to CEF UI thread
-    auto task = new MyCefTask(NewMessageHandler, jsonMessage);
+    auto task = new AirPacketCefTask(NewMessageHandler, jsonMessage);
     CefPostTask(TID_UI, task);
 }
 
