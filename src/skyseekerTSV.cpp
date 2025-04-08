@@ -2,7 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
-#include "structs.h"
+#include "skyseekerTSV.h"
 
 //for debuggin
 void printIcaoData(const icaoData& data) {
@@ -25,7 +25,7 @@ void fillEmptyData(icaoData& data) {
 	}
 }
 
-void getDataForICAO(const std::string& icao, icaoData& data) {
+void TSV::getDataForICAO(const std::string& icao, icaoData& data) {
 	std::ifstream file("data/modes.tsv");
 	if (!file.is_open()) {
 		std::cout << "modes.tsv not found in data dir" << std::endl;
@@ -66,5 +66,5 @@ void getDataForICAO(const std::string& icao, icaoData& data) {
 //void whateverExampleFunction() {
 //	std::string icao = "3E6210";
 //	icaoData data{};
-//	getDataForICAO(icao, data);
+//	TSV::getDataForICAO(icao, data);
 //}
