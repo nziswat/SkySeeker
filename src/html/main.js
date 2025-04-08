@@ -149,5 +149,21 @@ function printHashMap(hmap) {
         console.log(`HMAP Debug info:`, value);
     });
 }
+function debugcheckICAOData(stwing) {
+    console.log(`Trying to check ICAO data for ${stwing}`);
+    let query_string = `getICAOData${stwing}`;
+    console.log(`trynna check${query_string}`)
+    window.cefQuery({
+        request: query_string,
+        onSuccess: function (response) {
+            console.log("ICAO DATA GET!" + response);
+        },
+        onFailure: function (error_code, error_message) {
+            console.error("Literally could not get the frickin data wtf hunter", error_code, error_message);
+        }
+    });
+
+
+}
 
 let selectedAircraft;
