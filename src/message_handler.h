@@ -34,7 +34,7 @@ public:
         std::string fullReq = request.ToString();
         std::string firsthalf = fullReq.substr(0,11);
         std::string secondhalf = fullReq.substr(11, 17);
-        if (request == "getICAOData") {// check first 10 chars
+        if (firsthalf == "getICAOData") {// check first 10 chars
             std::string icao = secondhalf;// next 6 are ICAO code
 			//std::string icao = "LALALA";
             icaoData data{};
