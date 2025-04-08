@@ -19,7 +19,9 @@ set(CEFSIMPLE_SRCS
   message_handler.h
   structs.h
   RTL_interface.cc
-  RTL_interface.h)
+  RTL_interface.h
+  skyseekerTSV.cpp
+  skyseekerTSV.h)
 set(CEFSIMPLE_SRCS_LINUX
   cefsimple_linux.cc
   simple_handler_linux.cc

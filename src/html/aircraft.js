@@ -305,5 +305,21 @@ function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
         
 }
 
+function checkICAOData() {
+    console.log(`Trying to check ICAO data for ${this.icao}`);
+    let query_string = `getICAOData${this.icao}`;
+    window.cefQuery({
+        request: query_string,
+        onSuccess: function (response) {
+            console.log("ICAO DATA GET!" + response);
+        },
+        onFailure: function (error_code, error_message) {
+            console.error("Literally could not get the frickin data wtf nick", error_code, error_message);
+        }
+    });
+
+
+}
+
 // Initialize the hash map to store aircrafts
 let hashMap = new Map();

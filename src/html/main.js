@@ -118,6 +118,7 @@ function updateDetailTable(e, aircraft) {
     const container = document.getElementById('detailTable');
     const table = container.firstChild; //the actual table should be the only child
     selectedAircraft = aircraft;
+    aircraft.checkICAOData();
 
     // Make all polylines transparent/invisible
     hashMap.forEach((value, key) => {
