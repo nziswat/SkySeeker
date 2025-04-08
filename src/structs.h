@@ -68,3 +68,10 @@ struct modesMessage {//also adapted from dump1090
     /* Fields used by multiple message types. */
     int altitude, unit;
 };
+
+struct icaoData {
+    std::string country; //ModeSCountry
+    std::string registration; //Registration
+    std::string typeCode; //ICAOTypeCode
+    bool isMilitary; //type_flight
+};
