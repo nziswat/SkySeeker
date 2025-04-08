@@ -191,6 +191,7 @@ void labelPrint(std::string msg) {
 }
 
 int runRTL(MessageHandler* NewMessageHandler) {
+    std::this_thread::sleep_for(std::chrono::seconds(2)); //bodge for waiting until debugcall is defined
     messageHandler = NewMessageHandler; 
     HMODULE hDLL = LoadLibrary(L"rtlsdr.dll");
     if (!hDLL) {

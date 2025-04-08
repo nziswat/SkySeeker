@@ -1,9 +1,9 @@
 #include "database.h"
-#include "src/message_handler.h"
+
 
 Database* Database::instance = nullptr;
 std::string dblabel = "DB";
-MessageHandler* messageHandler;
+static MessageHandler* messageHandlerDB;
 
 Database::Database(const std::string& dbPath) : db(nullptr), dbPath(dbPath) {}
 
@@ -13,15 +13,19 @@ Database::~Database() {
     }
 }
 
-void labelPrint(std::string msg) {
-    if (messageHandler != nullptr) {
-        messageHandler->sendDebug("[" + dblabel + "] " + msg);
+void Database::dbPrint(std::string msg) {
+    if (messageHandlerDB != nullptr) {
+        messageHandlerDB->sendDebug("[" + dblabel + "] " + msg);
     }
+}
+
+void Database::giveMsgHandler(MessageHandler* handler) {
+    messageHandlerDB = handler;
 }
 
 bool Database::init() {
     if (sqlite3_open(dbPath.c_str(), &db)) {
-        labelPrint("Cannot open database: " + std::string(sqlite3_errmsg(db)));
+        dbPrint("Cannot open database: " + std::string(sqlite3_errmsg(db)));
         return false;
     }
 
@@ -37,7 +41,7 @@ bool Database::init() {
     
     char* errMsg = nullptr;
     if (sqlite3_exec(db, createTableQuery, nullptr, nullptr, &errMsg) != SQLITE_OK) {
-        labelPrint("SQL error: " + std::string(errMsg));
+        dbPrint("SQL error: " + std::string(errMsg));
         sqlite3_free(errMsg);
         return false;
     }
@@ -52,12 +56,11 @@ void Database::saveAircraftData(const std::string& icao, const std::string& lat,
     localtime_s(&tstruct, &now);
     strftime(timeStr, sizeof(timeStr), "%Y-%m-%d %X", &tstruct);
     
-    std::string query = "INSERT OR REPLACE INTO AircraftData (icao, timestamp, latitude, longitude) VALUES ('" 
-                        + icao + "', '" + timeStr + "', '" + lat + "', '" + lon + "');";
+    std::string query = "INSERT OR REPLACE INTO AircraftData (icao, timestamp, latitude, longitude) VALUES ('" + icao + "', '" + timeStr + "', '" + lat + "', '" + lon + "');";
 
     char* errMsg = nullptr;
     if (sqlite3_exec(db, query.c_str(), nullptr, nullptr, &errMsg) != SQLITE_OK) {
-        labelPrint("SQL error: " + std::string(errMsg));
+        dbPrint("SQL error: " + std::string(errMsg));
         sqlite3_free(errMsg);
     }
 }
@@ -67,7 +70,7 @@ void Database::loadAllAircraftData() {
     sqlite3_stmt* stmt;
 
     if (sqlite3_prepare_v2(db, query, -1, &stmt, nullptr) != SQLITE_OK) {
-        labelPrint("Failed to fetch data: " + std::string(sqlite3_errmsg(db)));
+        dbPrint("Failed to fetch data: " + std::string(sqlite3_errmsg(db)));
         return;
     }
 
@@ -77,7 +80,7 @@ void Database::loadAllAircraftData() {
         std::string latitude = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
         std::string longitude = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
 
-        labelPrint("ICAO: " + icao + ", Timestamp: " + timestamp + ", Lat: " + latitude + ", Lon: " + longitude);
+        dbPrint("ICAO: " + icao + ", Timestamp: " + timestamp + ", Lat: " + latitude + ", Lon: " + longitude);
     }
 
     sqlite3_finalize(stmt);
@@ -91,5 +94,6 @@ Database& Database::getInstance(const std::string& dbPath) {
             instance = nullptr;
         }
     }
+    dbPrint("getting database instance");
     return *instance;
 }

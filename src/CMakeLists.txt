@@ -21,7 +21,11 @@ set(CEFSIMPLE_SRCS
   RTL_interface.cc
   RTL_interface.h
   skyseekerTSV.cpp
-  skyseekerTSV.h)
+  skyseekerTSV.h
+  database.cpp 
+  database.h
+  sqlite3.c 
+  sqlite3.h)
 set(CEFSIMPLE_SRCS_LINUX
   cefsimple_linux.cc
   simple_handler_linux.cc

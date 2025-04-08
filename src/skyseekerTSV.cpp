@@ -48,12 +48,20 @@ void TSV::getDataForICAO(std::string& icao, icaoData& data) {
 		size_t tab3 = line.find('\t', tab2 + 1);
 		std::string token = (tab3 == std::string::npos) ? line.substr(tab2 + 1) : line.substr(tab2 + 1, tab3 - tab2 - 1);
 
+
 		if (token == icao) {
-			size_t tab4 = (tab3 != std::string::npos) ? line.find('\t', tab3 + 1) : std::string::npos;
-			data.country = line.substr(0, tab1);
-			data.registration = line.substr(tab1 + 1, tab2 - tab1 - 1);
-			data.typeCode = token;
-			data.isMilitary = (tab3 != std::string::npos && tab4 != std::string::npos) ? (line.substr(tab4 + 1) == "military") : false;
+			std::string part = line.substr(tab3 + 1);
+			size_t t = part.find('\t');
+			data.country = part.substr(0, t);
+
+			size_t t2 = part.find('\t', t + 1);
+			data.registration = part.substr(t + 1, t2 - t - 1);
+
+			size_t t3 = part.find('\t', t2 + 1);
+			data.typeCode = part.substr(t2 + 1, t3 - t2 - 1);
+
+			size_t t4 = part.find('\t', t3 + 1);
+			data.isMilitary = part.substr(t3 + 1, t4 - t3 - t2 - 1) == "military" ? 1 : 0;
 			break;
 		}
 	}
