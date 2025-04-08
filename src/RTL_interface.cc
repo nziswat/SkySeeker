@@ -20,9 +20,10 @@
 #include <sstream>
 #include <src/json.h>
 #include "RTL_interface.h"
+
+std::string dlabel = "Driver";
+
 using json = nlohmann::json;
-
-
 typedef int (*RtlSdrOpen)(rtlsdr_dev_t**, uint32_t);
 typedef int (*RtlSdrClose)(rtlsdr_dev_t*);
 typedef int (*RtlSdrSetSampleRate)(rtlsdr_dev_t*, uint32_t);
@@ -57,10 +58,6 @@ struct { //adapted from dump1090
 }dataloop ;
 
 //struct for decrypted message
-
-
-
-
 uint32_t modes_checksum_table[112] = { // used to verify integrity of packet
 0x3935ea, 0x1c9af5, 0xf1b77e, 0x78dbbf, 0xc397db, 0x9e31e9, 0xb0e2f0, 0x587178,
 0x2c38bc, 0x161c5e, 0x0b0e2f, 0xfa7d13, 0x82c48d, 0xbe9842, 0x5f4c21, 0xd05c14,
@@ -115,6 +112,7 @@ int decodeAC13Field(unsigned char* msg, int* unit);
 void displayModesMessage(struct modesMessage* mm);
 void sendModesData(modesMessage& mm);
 const char* getMEDescription(int metype, int mesub);
+int fixTwoBitsErrors(unsigned char* msg, int bits);
 
 void PostCefTask(MessageHandler* NewMessageHandler, const modesMessage& mm) {
     json root;
@@ -186,13 +184,17 @@ void PostCefTask(MessageHandler* NewMessageHandler, const modesMessage& mm) {
     CefPostTask(TID_UI, task);
 }
 
+void labelPrint(std::string msg) {
+    if (messageHandler != nullptr) {
+        messageHandler->sendDebug("[" + dlabel + "] " + msg);
+    }
+}
+
 int runRTL(MessageHandler* NewMessageHandler) {
     messageHandler = NewMessageHandler; 
     HMODULE hDLL = LoadLibrary(L"rtlsdr.dll");
     if (!hDLL) {
-
-        std::cerr << "Failed to load rtlsdr.dll!" << std::endl;
-        messageHandler->sendDebug("Failed to load rtlsdr.dll!");
+        labelPrint("Failed to load rtlsdr.dll!");
         return 1;
     }
 
@@ -220,7 +222,7 @@ int runRTL(MessageHandler* NewMessageHandler) {
 
     if (!rtlsdr_open || !rtlsdr_close || !rtlsdr_set_sample_rate || !rtlsdr_set_center_freq ||
         !rtlsdr_set_direct_sampling || !rtlsdr_set_tuner_gain_mode || !rtlsdr_reset_buffer || !rtlsdr_read_sync) {
-        std::cerr << "Failed to get function addresses!" << std::endl;
+        labelPrint("Failed to get function addresses!");
         FreeLibrary(hDLL);
         return 1;
     }
@@ -228,13 +230,13 @@ int runRTL(MessageHandler* NewMessageHandler) {
     //get first rtl device
     rtlsdr_dev_t* dev = nullptr;
     if (rtlsdr_open(&dev, 0) < 0) {
-        std::cerr << "Failed to open RTL-SDR device" << std::endl;
+        labelPrint("Failed to open RTL-SDR device");
         FreeLibrary(hDLL);
         return 1;
     }
 
-    std::cout << "RTL-SDR device opened successfully!" << std::endl;
-    messageHandler->sendDebug("RTL-SDR device opened successfully");
+    //std::cout << "RTL-SDR device opened successfully!" << std::endl;
+    labelPrint("RTL-SDR device opened successfully");
 
     //set gain: 0 = auto gain
     rtlsdr_set_tuner_gain_mode(dev, 0);
@@ -257,7 +259,7 @@ int runRTL(MessageHandler* NewMessageHandler) {
 
     //reset buffer before read
     if (rtlsdr_reset_buffer(dev) < 0) {
-        std::cerr << "Failed to reset buffer" << std::endl;
+        labelPrint("Failed to reset buffer");
         rtlsdr_close(dev);
         FreeLibrary(hDLL);
         return 1;
@@ -289,14 +291,14 @@ int runRTL(MessageHandler* NewMessageHandler) {
 
     while (true) {
         if (rtlsdr_read_sync(dev, buffer, sizeof(buffer), &bytes_read) < 0) {
-            std::cerr << "Failed to read from device" << std::endl;
+            labelPrint("Failed to read from device");
         }
         std::memcpy(dataloop.data, buffer, BUFFER_SIZE);
         calculateMag();
         detectModeS(dataloop.magnitude, BUFFER_SIZE / 2);
         exitDriverThread = messageHandler->driverStatus;
         if (exitDriverThread) {
-            std::cout << "Shutting Down LibUSB" << std::endl;
+            labelPrint("Shutting Down LibUSB");
             break;
         }
     }
@@ -489,6 +491,49 @@ int fixSingleBitErrors(unsigned char* msg, int bits) {
     return -1;
 }
 
+/* Similar to fixSingleBitErrors() but try every possible two bit combination.
+ * This is very slow and should be tried only against DF17 messages that
+ * don't pass the checksum, and only in Aggressive Mode. */
+int fixTwoBitsErrors(unsigned char* msg, int bits) {
+    int j, i;
+    unsigned char aux[LONG_MESSAGE / 8];
+
+    for (j = 0; j < bits; j++) {
+        int byte1 = j / 8;
+        int bitmask1 = 1 << (7 - (j % 8));
+
+        /* Don't check the same pairs multiple times, so i starts from j+1 */
+        for (i = j + 1; i < bits; i++) {
+            int byte2 = i / 8;
+            int bitmask2 = 1 << (7 - (i % 8));
+            uint32_t crc1, crc2;
+
+            memcpy(aux, msg, bits / 8);
+
+            aux[byte1] ^= bitmask1; /* Flip j-th bit. */
+            aux[byte2] ^= bitmask2; /* Flip i-th bit. */
+
+            crc1 = ((uint32_t)aux[(bits / 8) - 3] << 16) |
+                ((uint32_t)aux[(bits / 8) - 2] << 8) |
+                (uint32_t)aux[(bits / 8) - 1];
+            crc2 = modesChecksum(aux, bits);
+
+            if (crc1 == crc2) {
+                /* The error is fixed. Overwrite the original buffer with
+                 * the corrected sequence, and returns the error bit
+                 * position. */
+                //labelPrint("fixTwoBitsErrors repaired packet");
+                memcpy(msg, aux, bits / 8);
+                /* We return the two bits as a 16 bit integer by shifting
+                 * 'i' on the left. This is possible since 'i' will always
+                 * be non-zero because i starts from j+1. */
+                return j | (i << 8);
+            }
+        }
+    }
+    return -1;
+}
+
 void decodeModesMessage(struct modesMessage* mm, unsigned char* msg) {
     uint32_t crc2;   /* Computed CRC, used to verify the message CRC. */
     const char* ais_charset = "?ABCDEFGHIJKLMNOPQRSTUVWXYZ????? ???????????????0123456789??????";
@@ -519,12 +564,10 @@ void decodeModesMessage(struct modesMessage* mm, unsigned char* msg) {
             mm->crc = modesChecksum(msg, mm->msgbits);
             mm->crcok = 1;
         }
-        //else if (Modes.aggressive && mm->msgtype == 17 &&
-        //    (mm->errorbit = fixTwoBitsErrors(msg, mm->msgbits)) != -1)
-        //{
-        //    mm->crc = modesChecksum(msg, mm->msgbits);
-        //    mm->crcok = 1;
-        //}
+        else if (mm->msgtype == 17 && (mm->errorbit = fixTwoBitsErrors(msg, mm->msgbits)) != -1) {
+            mm->crc = modesChecksum(msg, mm->msgbits);
+            mm->crcok = 1;
+        }
     }
     
 
