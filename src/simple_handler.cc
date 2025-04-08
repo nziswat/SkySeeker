@@ -15,6 +15,7 @@
 #include "src/message_handler.h"
 #include "src/RTL_interface.h"
 #include "thread"
+#include "database.h"
 
 int track = 0;
 
@@ -22,11 +23,8 @@ namespace {
 
 SimpleHandler* g_instance = nullptr;
 
-// Returns a data: URI with the specified contents.
 std::string GetDataURI(const std::string& data, const std::string& mime_type) {
-  return "data:" + mime_type + ";base64," +
-         CefURIEncode(CefBase64Encode(data.data(), data.size()), false)
-             .ToString();
+  return "data:" + mime_type + ";base64," + CefURIEncode(CefBase64Encode(data.data(), data.size()), false).ToString();
 }
 
 }  // namespace
@@ -91,6 +89,8 @@ void SimpleHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
       message_handler_->browser_ref_m = browser; // finally works at this fucking point
       std::thread rtlThread(&runRTL, message_handler_.get());
       rtlThread.detach();
+      Database& db = Database::getInstance("collection.db");
+      db = db;
       ++track;
   };
 }
