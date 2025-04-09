@@ -226,7 +226,24 @@ class Aircraft {
         let b = Math.cos((Math.PI/180) * lat)**2
         let c = Math.acos(1 - a/b)
         return Math.floor(( 2 * Math.PI )/c)
-    } 
+    }
+    //function to call to database to get more info on aircraft (if possible)
+    checkICAOData() {
+    console.log(`Trying to check ICAO data for ${this.ID}`);
+    let query_string = `getICAOData${this.ID}`;
+    window.cefQuery({
+        request: query_string,
+        onSuccess: function (response) {
+            console.log("ICAO DATA GET!" + response);
+        },
+        onFailure: function (error_code, error_message) {
+            console.error("Literally could not get the frickin data wtf kevin", error_code, error_message);
+        }
+    });
+
+
+}
+
 }
 
 // Function to update Aircraft/flight info
@@ -277,8 +294,8 @@ function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
                         [[existingAircraft.lat, existingAircraft.long]], [0], { icon: planeIcon }
                     ).addTo(map);
 
-                    existingAircraft.movingMarker.on('click', function (e) { //binds clicking the marker to the update detail table function
-                        updateDetailTable(e, existingAircraft);
+                    existingAircraft.movingMarker.on('click', function (e) { //binds clicking the marker to the click function
+                        aircraftClick(e, existingAircraft);
                     });
                 }
                 // Create a polyline to track the plane's path
@@ -290,13 +307,13 @@ function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
                 existingAircraft.polyline.addLatLng([existingAircraft.lat, existingAircraft.long]);
             }
         }
-        if ((head != undefined) && (existingAircraft.movingMarker != undefined)) {
+        if ((head != undefined) && (existingAircraft.movingMarker != undefined)) { //???: couldn't this be moved?
             existingAircraft.movingMarker.setRotationAngle(existingAircraft.head +135); // +135 rotate for given icon
         }
 
-        if (selectedAircraft != undefined){ 
-        if (existingAircraft.ID == selectedAircraft.ID) {
-            updateDetailTable("?", existingAircraft);
+        if (selectedAircraft != undefined){ //if there is a selected aircraft-
+        if (existingAircraft.ID == selectedAircraft.ID) {//-that is the same as the new information we just got-
+            updateDetailTable(existingAircraft);//be sure to update the table
         }
         }
         //console.log("Updated Aircraft Data3:", "icao:", existingAircraft.ID, "lat:", existingAircraft.lat, "long:", existingAircraft.long,
@@ -305,21 +322,3 @@ function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
         
 }
 
-function checkICAOData() {
-    console.log(`Trying to check ICAO data for ${this.icao}`);
-    let query_string = `getICAOData${this.icao}`;
-    window.cefQuery({
-        request: query_string,
-        onSuccess: function (response) {
-            console.log("ICAO DATA GET!" + response);
-        },
-        onFailure: function (error_code, error_message) {
-            console.error("Literally could not get the frickin data wtf nick", error_code, error_message);
-        }
-    });
-
-
-}
-
-// Initialize the hash map to store aircrafts
-let hashMap = new Map();
