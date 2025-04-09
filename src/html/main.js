@@ -1,5 +1,13 @@
 // Main script for SkySeeker
 
+
+
+//flags
+globalLines = false;
+
+
+
+
 // Function to initialize the map
 function initializeMap(containerId, center, zoom) {
 
@@ -119,19 +127,19 @@ function aircraftClick(e, aircraft) {
     updateDetailTable(aircraft);
     aircraft.checkICAOData();
     // Make all polylines transparent/invisible
-    hashMap.forEach((value, key) => {
-        if (value.polyline) {
-            value.polyline.setStyle({
-                opacity: 0
-            });
-        }
-    });
-    // Make selected aircraft polyline visible
-    aircraft.polyline.setStyle({
-        opacity: 1
-    });
-
-
+    if (!globalLines) {
+        hashMap.forEach((value, key) => {
+            if (value.polyline) {
+                value.polyline.setStyle({
+                    opacity: 0
+                });
+            }
+        });
+        // Make selected aircraft polyline visible
+        aircraft.polyline.setStyle({
+            opacity: 1
+        });
+    }
 }
 function updateDetailTable(aircraft) {
     const container = document.getElementById('detailTable');
@@ -302,6 +310,27 @@ function debugcheckICAOData(stwing) {
         }
     });
 
+
+}
+
+function toggleLines() {
+    globalLines = !globalLines;
+    let opacityValue = 0;
+    if (globalLines){
+        opacityValue = 1
+    }
+    hashMap.forEach((value, key) => {
+        if (value.polyline) {
+            value.polyline.setStyle({
+                opacity: opacityValue,
+            });
+        }
+    })
+    if (selectedAircraft) { //always reset selected aircraft to visible
+        selectedAircraft.polyline.setStyle({
+            opacity: 1,
+        });
+    }
 
 }
 
