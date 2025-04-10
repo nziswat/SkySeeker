@@ -63,28 +63,31 @@ function forceUpdateAircraftTable(map) {
     }
     map.forEach((value, key) => { //put in the ICAOs from the hashmap
         let row;
-        if (!existingIcaos.has(key)) {
-            row = table.insertRow();
-            row.insertCell().textContent = key;
-            row.insertCell() // this looks stupid but it's just initializing the cells for each aircraft so you can actually assign stuff to it 
-            row.insertCell()
-            row.insertCell()
-            row.insertCell()
-            row.insertCell()
-        } else {
-            for (const frow of table.rows) {
-                if (frow.cells[0].textContent.includes(key)) {
-                    row = frow;
+        // only update the table if there is data
+        if ((value.head !== undefined) || (value.alt !== undefined) || (value.alt !== undefined) || (value.speed !== undefined) || (value.lat !== undefined) || (value.long !== undefined)) {
+            if (!existingIcaos.has(key)) {
+                row = table.insertRow();
+                row.insertCell().textContent = key;
+                row.insertCell() // this looks stupid but it's just initializing the cells for each aircraft so you can actually assign stuff to it 
+                row.insertCell()
+                row.insertCell()
+                row.insertCell()
+                row.insertCell()
+            } else {
+                for (const frow of table.rows) {
+                    if (frow.cells[0].textContent.includes(key)) {
+                        row = frow;
+                    }
                 }
             }
+            row.cells[1].textContent = value.head !== undefined ? value.head.toFixed(0) : 'N/A';
+            row.cells[2].textContent = value.alt !== undefined ? value.alt : 'N/A';
+            row.cells[3].textContent = value.speed !== undefined ? value.speed.toFixed(0) : 'N/A';
+            row.cells[4].textContent = value.lat !== undefined ? value.lat.toFixed(2) : 'N/A';
+            row.cells[5].textContent = value.long !== undefined ? value.long.toFixed(2) : 'N/A';
         }
-        row.cells[1].textContent = value.head !== undefined ? value.head.toFixed(0) : 'N/A'; 
-        row.cells[2].textContent = value.alt !== undefined ? value.alt : 'N/A';
-        row.cells[3].textContent = value.speed !== undefined ? value.speed.toFixed(0) : 'N/A';
-        row.cells[4].textContent = value.lat !== undefined ? value.lat.toFixed(2) : 'N/A';
-        row.cells[5].textContent = value.long !== undefined ? value.long.toFixed(2) : 'N/A';
         //console.log(value)
-
+    
 
     }
     );
