@@ -152,7 +152,61 @@ function updateDetailTable(aircraft) {
     table.rows[6].cells[1].textContent = aircraft.speed.toFixed(0);
 
 }
+//collapse / expand
+function toggleDetailTable() {
+    const tbody = document.querySelector("#detailTable tbody");
+    const button = document.getElementById("toggleButton");
+    if (tbody.style.display === "none") {
+        tbody.style.display = "table-row-group";
+        button.textContent = "-";
+    } else {
+        tbody.style.display = "none";
+        button.textContent = "+";
+    }
+}
+//called upon tables to make it work
+function makeDraggable(el) {
+    let isDragging = false;
+    let offsetX, offsetY;
 
+    el.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        offsetX = e.clientX - el.offsetLeft;
+        offsetY = e.clientY - el.offsetTop;
+        el.style.zIndex = 9999; // bring to front while dragging
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            el.style.left = (e.clientX - offsetX) + 'px';
+            el.style.top = (e.clientY - offsetY) + 'px';
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+    });
+}
+function toggleLines() {
+    globalLines = !globalLines;
+    let opacityValue = 0;
+    if (globalLines) {
+        opacityValue = 1
+    }
+    hashMap.forEach((value, key) => {
+        if (value.polyline) {
+            value.polyline.setStyle({
+                opacity: opacityValue,
+            });
+        }
+    })
+    if (selectedAircraft) { //always reset selected aircraft to visible
+        selectedAircraft.polyline.setStyle({
+            opacity: 1,
+        });
+    }
+
+}
 function startStopDriver() {
     window.cefQuery({
         request: "startStopDriver",
@@ -312,28 +366,6 @@ function debugcheckICAOData(stwing) {
 
 
 }
-
-function toggleLines() {
-    globalLines = !globalLines;
-    let opacityValue = 0;
-    if (globalLines){
-        opacityValue = 1
-    }
-    hashMap.forEach((value, key) => {
-        if (value.polyline) {
-            value.polyline.setStyle({
-                opacity: opacityValue,
-            });
-        }
-    })
-    if (selectedAircraft) { //always reset selected aircraft to visible
-        selectedAircraft.polyline.setStyle({
-            opacity: 1,
-        });
-    }
-
-}
-
 window.debugCall = function (input) {
     //console.log("Debug input received, input is as follows:");
     console.log(input);

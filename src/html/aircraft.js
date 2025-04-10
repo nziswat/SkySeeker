@@ -240,9 +240,38 @@ class Aircraft {
             console.error("Literally could not get the frickin data wtf kevin", error_code, error_message);
         }
     });
+    }
+    //save aircraft to DB
+    save() {
+        console.log(`Saving ${this.ID}`);
+        let fixlat = formatToSixChars(this.lat);
+        let fixlong = formatToSixChars(this.long);
+        let query_string = `savAircraft${this.ID}${fixlat}${fixlong}`;
+        window.cefQuery({
+            request: query_string,
+            onSuccess: function (response) {
+                console.log("Aircraft Saved");
+            },
+            onFailure: function (error_code, error_message) {
+                console.error("Aircraft failed to save!", error_code, error_message);
+            }
+        });
+    }
+    checkSaved() {
+        let query_string = `lodAircraft${this.id}`;
+        window.cefQuery({
+            request: query_string,
+            onSuccess: function (response) {
+                console.log(`Aircraft ${this.id} loaded.`);
+            },
+            onFailure: function (error_code, error_message) {
+                console.error("Aircraft failed to save!", error_code, error_message);
+            }
+        });
 
 
-}
+    }
+
 
 }
 
@@ -321,4 +350,12 @@ function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
     }
         
 }
-
+function formatToSixChars(num) {// minor helper function to force 6 chars (for query)
+    let str = num.toFixed(6);          
+    str = parseFloat(str).toString();  
+    if (str.length > 6) {
+        return str.slice(0, 6);        
+    } else {
+        return str.padEnd(6, '0');     
+    }
+}

@@ -1,8 +1,11 @@
+#pragma once
+
 #include "sqlite3.h"
 #include <string>
 #include <iostream>
 #include <ctime>
 #include "message_handler.h"
+
 
 class Database {
 public:

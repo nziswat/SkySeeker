@@ -171,114 +171,8 @@
     <div id="map"></div>
 
     <script>
-       function toggleDetailTable() {
-    const tbody = document.querySelector("#detailTable tbody");
-    const button = document.getElementById("toggleButton");
-    if (tbody.style.display === "none") {
-        tbody.style.display = "table-row-group";
-        button.textContent = "−";
-    } else {
-        tbody.style.display = "none";
-        button.textContent = "+";
-    }
-}
-
-             // draggable feature
-        function makeDraggable(el) {
-                let isDragging = false;
-                let offsetX, offsetY;
-
-                el.addEventListener('mousedown', (e) => {
-                    isDragging = true;
-                    offsetX = e.clientX - el.offsetLeft;
-                    offsetY = e.clientY - el.offsetTop;
-                    el.style.zIndex = 9999; // bring to front while dragging
-                });
-
-                document.addEventListener('mousemove', (e) => {
-                    if (isDragging) {
-                        el.style.left = (e.clientX - offsetX) + 'px';
-                        el.style.top = (e.clientY - offsetY) + 'px';
-                    }
-                });
-
-                document.addEventListener('mouseup', () => {
-                    isDragging = false;
-                });
-            }
-
-            // 
-            makeDraggable(document.getElementById('detailTable'));
-            makeDraggable(document.getElementById('aircraftTable'));
-        
-
-
-        window.debugCall = function (input) {
-            //console.log("Debug input received, input is as follows:");
-            console.log(input);
-        };
-
-
-        function startStopDriver() {
-            window.cefQuery({
-                request: "startStopDriver",
-                onSuccess: function (response) {
-                    console.log("Driver toggled: " + response);
-                },
-                onFailure: function (error_code, error_message) {
-                    console.error("CEF Query Failed:", error_code, error_message);
-                }
-            });
-        }
-
-
-        function updateAircraftData(data) {
-            let aircraftData = data;
-            let icao = aircraftData.icao;
-            let speed;
-            //console.log("Updated Aircraft Data1:", "icao:", icao, "lat:", aircraftData.raw_latitude, "long:", aircraftData.raw_longitude, "head:", aircraftData.heading, "alt:", aircraftData.altitude);
-            if ((aircraftData.heading == null) || (aircraftData.heading == undefined)) {
-                if ((aircraftData.ew_velocity != null) || (aircraftData.ew_velocity != undefined)) {
-                    //find heading, first get parity
-                    let nsVelocity = aircraftData.ns_velocity * (2 * aircraftData.ns_dir - 1);  //parity is given as 0, 1 not -1, 1
-                    let ewVelocity = aircraftData.ew_velocity * (2 * aircraftData.ew_dir - 1);  //this just makes it -1 or 1
-                    aircraftData.heading = Math.atan2(ewVelocity, nsVelocity) * 180 / Math.PI;
-                    if (aircraftData.heading < 0) {
-                        aircraftData.heading += 360 // turn negatives into positives
-                    }
-                }
-            }
-
-            if ((aircraftData.ew_velocity != null) || (aircraftData.ew_velocity != undefined)) {
-                // Calculate speed
-                speed = Math.sqrt(aircraftData.ns_velocity ** 2 + aircraftData.ew_velocity ** 2);
-            }
-
-            // Set null values to undefined
-            // Note: unsure if they are null or undefined by default
-            if (aircraftData.raw_latitude == null) {
-                aircraftData.raw_latitude = undefined;
-                aircraftData.raw_longitude = undefined;
-            }
-            if (aircraftData.heading == null) {
-                aircraftData.heading = undefined;
-            }
-            if (aircraftData.altitude == null) {
-                aircraftData.altitude = undefined;
-            }
-            if (speed == null) {
-                speed = undefined;
-            }
-            if (aircraftData.fflag == null) {
-                aircraftData.fflag = undefined;
-            }
-            //console.log("Updated Aircraft Data2:", "icao:", icao, "lat:", aircraftData.raw_latitude, "long:", aircraftData.raw_longitude, "ns vel:", aircraftData.ns_velocity, "ew vel:",
-            //    aircraftData.ew_velocity, "head:", aircraftData.heading, "alt:", aircraftData.altitude, "speed:", speed);
-            receiveSignal(map, aircraftData.icao, aircraftData.raw_latitude, aircraftData.raw_longitude, aircraftData.heading, aircraftData.altitude, speed, aircraftData.fflag);
-            forceUpdateAircraftTable(hashMap)
-            //printHashMap(hashMap);
-        }
-
+        makeDraggable(document.getElementById('detailTable'));
+        makeDraggable(document.getElementById('aircraftTable'));
         // Initialize map
         const map = initializeMap("map", [27.947954, -82.466856], 12); // Default: Tampa
         // Initialize aircraft table
@@ -301,6 +195,11 @@
             iconSize: [40, 40],
             iconAnchor: [20, 20] // Rotate around the center of the icon
         });
+
+        // variable used when clicking on an aircraft
+        let selectedAircraft;
+        // Initialize the hash map to store aircrafts
+        let hashMap = new Map();
     </script>
 </body>
 </html>
