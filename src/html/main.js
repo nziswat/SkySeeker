@@ -53,7 +53,7 @@ function updateAircraftTable(data) {
 //repopulate the entire table with all data from the hashmap
 function forceUpdateAircraftTable(map) {
     const container = document.getElementById('aircraftTable');
-    const table = container.firstChild; //the actual table should be the only child
+    const table = container.querySelector('table');
 
     // check existing ICAOs
     const existingIcaos = new Set();
@@ -94,7 +94,7 @@ function forceUpdateAircraftTable(map) {
     //sort the table by alphabetical ICAO order
 function sortTable() {
     const container = document.getElementById('aircraftTable');
-    const table = container.firstChild;
+    const table = container.querySelector('table');
     const rows = Array.from(table.rows).slice(1); //skip index 0 / the header
 
     rows.sort((a, b) => {
@@ -164,16 +164,37 @@ function toggleDetailTable() {
         button.textContent = "+";
     }
 }
+//function to space under the header and sub header
+function spaceHeader() {
+    const header = document.getElementById("header");
+    const subheader = document.getElementById("subheader");
+    const spacer = document.getElementById("header-spacer");
+
+    if (header && subheader && spacer) {
+        const headerHeight = header.offsetHeight;
+        const subheaderHeight = subheader.offsetHeight;
+        const totalHeight = headerHeight + subheaderHeight - 5; // small offset
+        spacer.style.height = `${totalHeight}px`;
+    }
+    else if (header && spacer) {
+        const headerHeight = header.offsetHeight;
+        const totalHeight = headerHeight - 5; // small offset
+        spacer.style.height = `${totalHeight}px`;
+    }
+}
+
 //called upon tables to make it work
 function makeDraggable(el) {
     let isDragging = false;
-    let offsetX, offsetY;
+    let offsetX = 0, offsetY = 0;
 
     el.addEventListener('mousedown', (e) => {
         isDragging = true;
         offsetX = e.clientX - el.offsetLeft;
         offsetY = e.clientY - el.offsetTop;
-        el.style.zIndex = 9999; // bring to front while dragging
+        el.style.zIndex = 9999;
+        el.style.cursor = 'grabbing';
+        e.preventDefault(); // prevent text selection
     });
 
     document.addEventListener('mousemove', (e) => {
@@ -185,6 +206,7 @@ function makeDraggable(el) {
 
     document.addEventListener('mouseup', () => {
         isDragging = false;
+        el.style.cursor = 'grab';
     });
 }
 function toggleLines() {

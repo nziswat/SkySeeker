@@ -48,11 +48,6 @@
             flex: 1; /* Fill the rest of the height */
         }
 
-        .draggable {
-        cursor: move;
-        user-select: none;
-        }
-
 
         /* Floating table on the left side */
         #detailTable {
@@ -76,9 +71,9 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             z-index: 1000;
+            cursor: grab;
             font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
         }
-
         table {
             border-collapse: collapse;
             width: 200px;
@@ -100,7 +95,7 @@
 </head>
 <body>
     <!-- Header -->
-    <header class="header">
+    <header id="header" class="header">
         <div class="logo-container">
             <h1 class="header-title">SkySeeker</h1>
             <img src="media/planegif.gif" alt="Animated Logo" class="header-gif">
@@ -113,23 +108,11 @@
     </header>
 
     <!-- Header Spacer -->
-    <div class="header-spacer">
-        <div class="logo-container">
-            <h1 class="header-title">SkySeeker</h1>
-            <img src="media/planegif.gif" alt="Animated Logo" class="header-gif">
-        </div>
-        <div class="button-container">
-            <button class="button1">Map</button>
-            <button class="button">What's Above Me?</button>
-            <a href="log.html"><button class="button">Personal Log</button></a>
-        </div>
-    </div>
+    <div id="header-spacer" style="display: block; width: 100%;"></div>
 
     <!-- Sub Header-->
-    <div class="subheader">
-
+    <div id="subheader" class="subheader">
         <h2 class="categories-title">Functions:</h2>
-
         <div class="categories-container">
             <button onclick="startStopDriver()" class="catbutton"><b>Start/Stop Driver</b></button>
             <button onclick="selectedAircraft.save()" class="catbutton"><b>Catch Flight</b></button>
@@ -137,10 +120,8 @@
         </div>
     </div>
 
-
     <!-- Floating Table -->
-    <!-- Floating Table -->
-    <div id="detailTable">
+    <div id="detailTable" class="table-container">
         <table>
             <thead>
                 <tr>
@@ -164,21 +145,23 @@
     </div>
 
     <!-- Table of All Aircraft -->
-    <div id="aircraftTable" class = "draggable"></div>
+    <div id="aircraftTable" class="table-container"></div>
 
 
     <!-- Map container -->
     <div id="map"></div>
 
     <script>
-        makeDraggable(document.getElementById('detailTable'));
-        makeDraggable(document.getElementById('aircraftTable'));
+
+        window.addEventListener('load', spaceHeader);
+        window.addEventListener('resize', spaceHeader);
         // Initialize map
         const map = initializeMap("map", [27.947954, -82.466856], 12); // Default: Tampa
         // Initialize aircraft table
-        createAircraftTable()
-
-        // map boundaires
+        createAircraftTable();
+        makeDraggable(document.getElementById('detailTable'));
+        makeDraggable(document.getElementById('aircraftTable'));
+        // map boundaries
             const bounds = L.latLngBounds(
                 L.latLng(-85, -180),  // sw corner
                 L.latLng(85, 180)     // ne corner

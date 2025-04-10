@@ -24,14 +24,6 @@ body {
 .header-spacer {
     position: static; /* Gives space for subheader at top of page */
     z-index: -1;
-    display: flex;
-    justify-content: flex-start; /* Aligns items to the left */
-    align-items: center;
-    background-color: #333;
-    padding: 2px 20px;
-    color: white;
-    min-height: 20px;
-    gap: 10%; /* Adds space between the logo and buttons */
 }
 
 .logo-container {
@@ -49,6 +41,17 @@ body {
 .header-gif {
   height: 80px; /* Adjust size if needed */
   width: auto;
+}
+
+.table-container {
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+.table-container table {
+    border-collapse: collapse;
+    width: 100%;
+    table-layout: auto;
 }
 
 .button-container {
@@ -71,22 +74,8 @@ body {
   font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
-.button1 {
-  /* this is so when the user is on the map (or any page) page the cursor doesnt 
-  imply that they can click on the map button (since theyre already on that page)
-  - visual reprensentation of what page the user is on */
-  padding: 10px 50px;
-  background-color: #495e76;
-  border: none;
-  color: white;
-  border-radius: 5px;
-  font-size: 150%;
-  font-size: 150%;
-  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-}
-
 .button:hover {
-  background-color: #495e76;
+    background-color: #495e76;
 }
 
 .button:active {
@@ -94,6 +83,19 @@ body {
     color: #79a5b4;
 }
 
+.button1 {
+    /* this is so when the user is on the map (or any page) page the cursor doesnt 
+  imply that they can click on the map button (since theyre already on that page)
+  - visual reprensentation of what page the user is on */
+    padding: 10px 50px;
+    background-color: #414b58;
+    border: none;
+    color: grey;
+    border-radius: 5px;
+    font-size: 150%;
+    font-size: 150%;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
 
 .subheader {
   position: fixed; /* Fixed to top just below main header */
@@ -114,23 +116,6 @@ body {
   font-family: "amaranth", sans-serif;
     font-weight: 700;
     font-style: italic;
-}
-
-.subheader-spacer {
-  position: static; /* Gives space for subheader at top of page */
-  z-index: -1;
-  display: flex;
-  justify-content: flex-start; /* Aligns items to the left */
-  align-items: center;
-  background-color: #d8d8d8;
-  padding: 25px 40px;
-  color: grey;
-  border-style: solid;
-  border-width: 1px;
-  border-color: rgb(116, 115, 115);
-  min-height: 20px;
-  width: 100%;
-  gap: 20px; /* Adds space between the title and buttons */
 }
 
 .categories-title {
@@ -155,9 +140,15 @@ body {
   font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
-  /* .catbutton:hover {
+.catbutton:hover {
       background-color: #e0c2b2;
-  } */
+}
+
+.catbutton:active {
+    background-color: #ff7a33;
+}
+
+
 /* CSS to make whatsabove me adapt to any device */
 
 @media (max-width: 480px) {
