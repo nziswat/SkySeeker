@@ -1,8 +1,10 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://use.typekit.net/xop8trk.css">
     <title>Map</title>
 
     <!-- Set icon -->
@@ -23,6 +25,9 @@
     <script src="simulation.js"></script> <!-- Simulation logic -->
 
     <style>
+
+
+
         /* Ensure the map container has height */
         body, html {
             margin: 0;
@@ -31,6 +36,7 @@
             display: flex; /* Fill the rest of the height */
             flex-direction: column; /* Fill the rest of the height */
         }
+
 
         #map {
             width: 100%;
@@ -42,6 +48,12 @@
             flex: 1; /* Fill the rest of the height */
         }
 
+        .draggable {
+        cursor: move;
+        user-select: none;
+        }
+
+
         /* Floating table on the left side */
         #detailTable {
             position: absolute;
@@ -52,6 +64,8 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             z-index: 1000;
+            cursor: move;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
         }
         #aircraftTable {
             position: absolute;
@@ -62,6 +76,7 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             z-index: 1000;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
         }
 
         table {
@@ -78,6 +93,9 @@
         th {
             background: #ddd;
         }
+
+
+        
     </style>
 </head>
 <body>
@@ -88,9 +106,8 @@
             <img src="media/planegif.gif" alt="Animated Logo" class="header-gif">
         </div>
         <div class="button-container">
-            <button onclick="startStopDriver()" class="button">Start/Stop Driver</button>
-            <button class="button">Map</button>
-            <button class="button">What's Above Me?</button>
+            <button class="button1">Map</button>
+            <a href="whatsaboveme.html"><button class="button">What's Above Me?</button></a>
             <a href="log.html"><button class="button">Personal Log</button></a>
         </div>
     </header>
@@ -102,49 +119,92 @@
             <img src="media/planegif.gif" alt="Animated Logo" class="header-gif">
         </div>
         <div class="button-container">
-            <button class="button">Start/Stop Driver</button>
-            <button class="button">Map</button>
+            <button class="button1">Map</button>
             <button class="button">What's Above Me?</button>
             <a href="log.html"><button class="button">Personal Log</button></a>
         </div>
     </div>
 
+    <!-- Sub Header-->
+    <div class="subheader">
+
+        <h2 class="categories-title">Functions:</h2>
+
+        <div class="categories-container">
+            <button onclick="startStopDriver()" class="catbutton"><b>Start/Stop Driver</b></button>
+            <button onclick="selectedAircraft.save()" class="catbutton"><b>Catch Flight</b></button>
+            <button onclick="toggleLines()" class="catbutton"><b>Hide / Unhide Paths</b></button>
+        </div>
+    </div>
+
+
+    <!-- Floating Table -->
     <!-- Floating Table -->
     <div id="detailTable">
         <table>
-            <tr><th>Property</th><th>Value</th></tr>
-            <tr><td>ICAO</td><td id="planeID"></td></tr>
-            <tr><td>Latitude</td><td id="planeLat"></td></tr>
-            <tr><td>Longitude</td><td id="planeLong"></td></tr>
-            <tr><td>Heading</td><td id="planeHead"></td></tr>
-            <tr><td>Altitude</td><td id="planeAlt"></td></tr>
-            <tr><td>Speed</td><td id="planeSpeed"></td></tr>
+            <thead>
+                <tr>
+                    <th>Property</th>
+                    <th>
+                        Value 
+                        <button onclick="toggleDetailTable()" id="toggleButton" 
+                        style="margin-left: 20px;"> - </button>
+                    </th>
+                </tr>
+            </thead>
+            <tbody style="display: table-row-group;">
+                <tr><td>ICAO</td><td id="planeID"></td></tr>
+                <tr><td>Latitude</td><td id="planeLat"></td></tr>
+                <tr><td>Longitude</td><td id="planeLong"></td></tr>
+                <tr><td>Heading</td><td id="planeHead"></td></tr>
+                <tr><td>Altitude</td><td id="planeAlt"></td></tr>
+                <tr><td>Speed</td><td id="planeSpeed"></td></tr>
+            </tbody>
         </table>
     </div>
 
     <!-- Table of All Aircraft -->
-    <div id="aircraftTable"></div>
+    <div id="aircraftTable" class = "draggable"></div>
 
 
     <!-- Map container -->
     <div id="map"></div>
 
     <script>
+        makeDraggable(document.getElementById('detailTable'));
+        makeDraggable(document.getElementById('aircraftTable'));
         // Initialize map
         const map = initializeMap("map", [27.947954, -82.466856], 12); // Default: Tampa
         // Initialize aircraft table
         createAircraftTable()
+
+        // map boundaires
+            const bounds = L.latLngBounds(
+                L.latLng(-85, -180),  // sw corner
+                L.latLng(85, 180)     // ne corner
+            );
+            map.setMaxBounds(bounds);
+            map.on('drag', function () {
+                map.panInsideBounds(bounds, { animate: false });
+            });
+
+
         // Initialize plane icon
         const planeIcon = L.icon({
             iconUrl: 'media/plane-icon.svg',
             iconSize: [40, 40],
             iconAnchor: [20, 20] // Rotate around the center of the icon
         });
+        const savedIcon = L.icon({ // icon for saved planes
+            iconUrl: 'media/cool-icon.svg',
+            iconSize: [40, 40],
+            iconAnchor: [20, 20] // Rotate around the center of the icon
+        });
+
         // variable used when clicking on an aircraft
         let selectedAircraft;
         // Initialize the hash map to store aircrafts
         let hashMap = new Map();
-        
     </script>
 </body>
 </html>

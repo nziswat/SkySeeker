@@ -1,8 +1,12 @@
+//todo: replace with pragma twice
+#pragma once
+
 #include "sqlite3.h"
 #include <string>
 #include <iostream>
 #include <ctime>
-#include "message_handler.h"
+
+class MessageHandler; //forward declared so cmake doesn't go on a rampage
 
 class Database {
 public:
@@ -16,6 +20,7 @@ public:
 
     void saveAircraftData(const std::string& icao, const std::string& lat, const std::string& lon);
     void loadAllAircraftData();
+    int findAircraftByICAO(const std::string& icaoToFind);
 
     static Database& getInstance(const std::string& dbPath = "");
 

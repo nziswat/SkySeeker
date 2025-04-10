@@ -5,6 +5,7 @@
 #include <string>
 #include <thread>
 #include "skyseekerTSV.h"
+#include "database.h"
 
 class MessageHandler : public CefMessageRouterBrowserSide::Handler, public CefBaseRefCounted {
 public:
@@ -30,18 +31,41 @@ public:
         }
 
         //sliced requests past this point
+        //first 11 chars are checked for what function it is
 
         std::string fullReq = request.ToString();
         std::string firsthalf = fullReq.substr(0,11);
-        std::string secondhalf = fullReq.substr(11, 17);
+        
         if (firsthalf == "getICAOData") {// check first 10 chars
-            std::string icao = secondhalf;// next 6 are ICAO code
+            std::string icao = fullReq.substr(11, 6);
 			//std::string icao = "LALALA";
             icaoData data{};
             TSV::getDataForICAO(icao, data);
 			callback->Success(icao);
 			return true;
 		}
+        if (firsthalf == "savAircraft") {// check first 10 chars
+            Database& db = Database::getInstance("collection.db"); //get the database
+            std::string icao = fullReq.substr(11, 6); // icao
+            std::string lat = fullReq.substr(17, 6); //lat
+            std::string lon = fullReq.substr(23, 6); // long;
+            sendDebug(icao +" "+ lat +" "+ lon);
+            db.saveAircraftData(icao, lat, lon);
+            callback->Success(icao);
+            return true;
+        }
+        if (firsthalf == "lodAircraft") {// check first 10 chars
+            Database& db = Database::getInstance("collection.db"); //get the database
+            std::string icao = fullReq.substr(11, 6); // icao
+            int check = db.findAircraftByICAO(icao);
+            if (check > 0) {
+                callback->Success(icao);
+            }
+            else {
+                callback->Failure(1, "No matching save");
+            }
+            return true;
+        }
 
         return false;  // wrong query
     }
