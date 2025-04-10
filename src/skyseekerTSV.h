@@ -3,4 +3,5 @@
 class TSV {
 public:
 	static void getDataForICAO(std::string& icao, icaoData& data);
+	static void init();
 };

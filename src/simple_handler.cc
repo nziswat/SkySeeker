@@ -92,6 +92,9 @@ void SimpleHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
       Database::giveMsgHandler(message_handler_.get());
       Database& db = Database::getInstance("collection.db");
       db = db;
+      //message_handler_.get()->sendDebug("[TSV] Building TSV Lookup Table");
+      TSV::init(); //thread this probably since it could be slow building the table
+      //message_handler_.get()->sendDebug("[TSV] Done");
       ++track;
   };
 }

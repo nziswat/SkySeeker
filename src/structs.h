@@ -70,8 +70,13 @@ struct modesMessage {//also adapted from dump1090
 };
 
 struct icaoData {
-    std::string country; //ModeSCountry
-    std::string registration; //Registration
-    std::string typeCode; //ICAOTypeCode
-    bool isMilitary; //type_flight
+    std::string country;
+    std::string registration;
+    std::string typeCode;
+    bool isMilitary;
+};
+
+struct indexEntry {
+    std::string icao;
+    std::streampos pos;
 };
