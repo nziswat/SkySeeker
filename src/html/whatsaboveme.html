@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>What’s Above Me</title>
+
+  <!-- Set icon -->
+  <link rel="icon" href="media/radar.svg" type="image/x-icon" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="leaflet/leaflet.css" />
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Leaflet + Plugins -->
+  <script src="leaflet/leaflet.js"></script>
+  <script src="MovingMarker.js"></script>
+  <script src="rotatedMarker.js"></script>
+
+  <!-- Your JS -->
+  <script src="main.js"></script>
+  <script src="aircraft.js"></script>
+  <script src="simulation.js"></script>
+
+  <style>
+    #liveAircraftTable {
+      border-collapse: collapse;
+      width: 95%;
+      margin: 30px auto;
+      background-color: white;
+    }
+    #liveAircraftTable th, #liveAircraftTable td {
+      border: 1px solid black;
+      padding: 8px;
+      text-align: center;
+    }
+    #liveAircraftTable th {
+      background-color: #ddd;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="logo-container">
+      <h1 class="header-title">SkySeeker</h1>
+      <img src="media/planegif.gif" alt="Animated Logo" class="header-gif" />
+    </div>
+    <div class="button-container">
+      <button onclick="startStopDriver()" class="button">Start/Stop Driver</button>
+      <a href="map.html"><button class="button">Map</button></a>
+      <a href="whatsaboveme.html"><button class="button">What's Above Me?</button></a>
+      <a href="log.html"><button class="button">Personal Log</button></a>
+    </div>
+  </header>
+
+  <!-- Header Spacer -->
+  <div class="header-spacer">
+    <div class="logo-container">
+      <h1 class="header-title">SkySeeker</h1>
+      <img src="media/planegif.gif" alt="Animated Logo" class="header-gif" />
+    </div>
+    <div class="button-container">
+      <button class="button">Start/Stop Driver</button>
+      <a href="map.html"><button class="button">Map</button></a>
+      <a href="whatsaboveme.html"><button class="button">What's Above Me?</button></a>
+      <a href="log.html"><button class="button">Personal Log</button></a>
+    </div>
+  </div>
+
+  <!-- Sort Dropdown -->
+  <div style="margin: 20px; text-align: center;">
+    <label for="sortSelect">Sort by:</label>
+    <select id="sortSelect" onchange="updateWhatsAboveMeTable()">
+      <option value="icao">ICAO</option>
+      <option value="alt">Altitude</option>
+      <option value="speed">Speed</option>
+      <option value="lat">Latitude</option>
+      <option value="long">Longitude</option>
+    </select>
+  </div>
+
+  <!-- Aircraft Table -->
+  <div id="whatsAboveMeTable">
+    <table id="liveAircraftTable">
+      <thead>
+        <tr>
+          <th>ICAO</th>
+          <th>Heading</th>
+          <th>Altitude</th>
+          <th>Speed</th>
+          <th>Latitude</th>
+          <th>Longitude</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    function updateWhatsAboveMeTable() {
+      const tableBody = document.querySelector("#liveAircraftTable tbody");
+      tableBody.innerHTML = "";
+
+      const sortBy = document.getElementById("sortSelect").value;
+
+      if (typeof hashMap === 'undefined') return;
+
+      const aircraftArray = Array.from(hashMap.values()).filter(ac => ac.lat && ac.long);
+
+      aircraftArray.sort((a, b) => {
+        switch (sortBy) {
+          case "alt": return (b.alt || 0) - (a.alt || 0);
+          case "speed": return (b.speed || 0) - (a.speed || 0);
+          case "lat": return b.lat - a.lat;
+          case "long": return b.long - a.long;
+          default: return a.ID.localeCompare(b.ID);
+        }
+      });
+
+      aircraftArray.forEach(ac => {
+        const row = document.createElement("tr");
+        const data = [
+          ac.ID,
+          ac.head !== undefined ? ac.head.toFixed(0) : 'N/A',
+          ac.alt !== undefined ? ac.alt : 'N/A',
+          ac.speed !== undefined ? ac.speed.toFixed(0) : 'N/A',
+          ac.lat.toFixed(3),
+          ac.long.toFixed(3)
+        ];
+
+        data.forEach((value, index) => {
+  const td = document.createElement("td");
+
+  //  Add plane emoji to ICAO column (first column)
+  if (index === 0) {
+    td.innerHTML = "✈️ " + value;
+  } else {
+    td.textContent = value;
+  }
+
+  // 🎨 Optional: Color-code Altitude column (index 2)
+  if (index === 2 && ac.alt !== undefined) {
+    const alt = ac.alt;
+    if (alt > 35000) td.style.color = "#1e90ff";  // high = blue
+    else if (alt > 25000) td.style.color = "#28a745"; // mid = green
+    else td.style.color = "#dc3545"; // low = red
+  }
+
+  row.appendChild(td);
+});
+
+
+        tableBody.appendChild(row);
+      });
+    }
+
+    setInterval(updateWhatsAboveMeTable, 2000);
+    
+  </script>
+  <script>
+    // test aircraft data into hashmap
+    function loadFakeAircraftData() {
+      if (typeof hashMap === 'undefined') {
+        window.hashMap = new Map(); // create it if needed
+      }
+  
+      const fakeAircraft = [
+        {
+          ID: "ABC123",
+          head: 270,
+          alt: 30000,
+          speed: 480,
+          lat: 27.95,
+          long: -82.46
+        },
+        {
+          ID: "XYZ789",
+          head: 90,
+          alt: 38000,
+          speed: 520,
+          lat: 27.93,
+          long: -82.45
+        },
+        {
+          ID: "LMN456",
+          head: 180,
+          alt: 25000,
+          speed: 400,
+          lat: 28.01,
+          long: -82.5
+        }
+      ];
+  
+      fakeAircraft.forEach(ac => {
+        hashMap.set(ac.ID, ac);
+      });
+  
+      console.log("✅ Fake aircraft data loaded.");
+    }
+  
+    // Auto-load fake data for testing
+    loadFakeAircraftData();
+  </script>
+  
+</body>
+</html>
