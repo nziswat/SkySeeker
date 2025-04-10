@@ -6,9 +6,9 @@
 #include <string>
 #include "skyseekerTSV.h"
 #include <src/json.h>
-
-const std::string filename = "data/modes.tsv";
-std::vector<indexEntry> indexLUT;
+#include "database.h"
+const std::string tsvFilename = "data/modes.tsv";
+std::vector<indexEntry> tsvIndex; //filled during init
 
 void printIcaoData(const icaoData& data) {
 	std::cout << "ICAO DATA:\n";
@@ -25,14 +25,11 @@ void fillEmptyData(icaoData& data) {
 }
 
 std::vector<indexEntry> buildLookupTable(size_t step = 1000) {
-	//std::cout << "[DEBUG] Building lookup table from file: " << filename << "\n";
-
-	std::ifstream file(filename);
-	std::vector<indexEntry> indexTbl;
+	std::ifstream file(tsvFilename);
+	std::vector<indexEntry> index;
 
 	if (!file.is_open()) {
-		//std::cerr << "[ERROR] Failed to open " << filename << "\n";
-		return indexTbl;
+		return index;
 	}
 
 	std::string line;
@@ -53,75 +50,87 @@ std::vector<indexEntry> buildLookupTable(size_t step = 1000) {
 		std::string icao = (tab3 == std::string::npos) ? line.substr(tab2 + 1) : line.substr(tab2 + 1, tab3 - tab2 - 1);
 
 		if (counter++ % step == 0) {
-			indexTbl.push_back({ icao, pos });
+			index.push_back({ icao, pos });
 		}
 	}
 
 	file.close();
 
-	//std::cout << "[DEBUG] Lookup table built with " << index.size() << " entries.\n";
-	return indexTbl;
+	std::cout << "[DEBUG] Lookup table built with " << index.size() << " entries.\n";
+	return index;
+}
+
+std::vector<std::string> explodeTab(const std::string& input) {
+	std::vector<std::string> result;
+	std::stringstream ss(input);
+	std::string item;
+
+	while (std::getline(ss, item, '\t')) {
+		result.push_back(item);
+	}
+
+	return result;
 }
 
 void TSV::getDataForICAO(std::string& icao, icaoData& data) {
-	//std::cout << "[DEBUG] Searching for ICAO: " << icao << "\n";
+	std::cout << "[DEBUG] Searching for ICAO: " << icao << "\n";
 
-	std::ifstream file(filename);
+	std::ifstream file(tsvFilename);
 	if (!file.is_open()) {
-		//std::cerr << "[ERROR] modes.tsv not found in data dir\n";
+		std::cerr << "[ERROR] modes.tsv not found in data dir\n";
 		return;
 	}
 
 	//find nearest lower bound in index
-	auto it = std::lower_bound(indexLUT.begin(), indexLUT.end(), icao,
+	auto it = std::lower_bound(tsvIndex.begin(), tsvIndex.end(), icao,
 		[](const indexEntry& entry, const std::string& val) {
 			return entry.icao < val;
 		});
 
-	if (it != indexLUT.begin() && (it == indexLUT.end() || it->icao > icao)) {
+	if (it != tsvIndex.begin() && (it == tsvIndex.end() || it->icao > icao)) {
 		--it;
 	}
 
-	//std::cout << "[DEBUG] Starting search from ICAO: " << it->icao << " at file position: " << it->pos << "\n";
+	std::cout << "[DEBUG] Starting search from ICAO: " << it->icao << " at file position: " << it->pos << "\n";
 	file.seekg(it->pos);
 
 	std::string line;
+	bool skipped = false;
 	while (std::getline(file, line)) {
-		size_t tab1 = line.find('\t');
-		if (tab1 == std::string::npos) continue;
-
-		size_t tab2 = line.find('\t', tab1 + 1);
-		if (tab2 == std::string::npos) continue;
-
-		size_t tab3 = line.find('\t', tab2 + 1);
-		std::string token = (tab3 == std::string::npos) ? line.substr(tab2 + 1) : line.substr(tab2 + 1, tab3 - tab2 - 1);
-
-		if (token == icao) {
-			std::string part = line.substr(tab3 + 1);
-			size_t t = part.find('\t');
-			data.country = part.substr(0, t);
-
-			size_t t2 = part.find('\t', t + 1);
-			data.registration = part.substr(t + 1, t2 - t - 1);
-
-			size_t t3 = part.find('\t', t2 + 1);
-			data.typeCode = part.substr(t2 + 1, t3 - t2 - 1);
-
-			size_t t4 = part.find('\t', t3 + 1);
-			data.isMilitary = part.substr(t3 + 1, t4 - t3 - t2 - 1) == "military" ? 1 : 0;
-
-			//std::cout << "[DEBUG] ICAO match found.\n";
-			break;
+		std::vector<std::string> exploded = explodeTab(line);
+		if (!skipped) {
+			std::string token = exploded[0];
+			//std::cout << "[!skipped] checking if " << token << " == " << icao << std::endl;
+			if (token == icao) {
+				data.country = exploded[1];
+				data.registration = exploded[2];
+				data.typeCode = exploded[3];
+				data.isMilitary = exploded[4] == "military" ? 1 : 0;
+				break;
+			}
+			if (token > icao) {
+				break;
+			}
+			skipped = true;
 		}
-
-		if (token > icao) {
-			//std::cout << "[DEBUG] Stopped search: passed ICAO range.\n";
-			break;
+		else {
+			std::string token = exploded[2];
+			//std::cout << "[skipped] checking if " << token << " == " << icao << std::endl;
+			if (token == icao) {
+				data.country = exploded[3];
+				data.registration = exploded[4];
+				data.typeCode = exploded[5];
+				data.isMilitary = exploded[6] == "military" ? 1 : 0;
+				break;
+			}
+			if (token > icao) {
+				break;
+			}
 		}
 	}
 
 	file.close();
-	fillEmptyData(data); // replace all with empty
+	fillEmptyData(data);
 	nlohmann::json j; // struct to json for js handling
 	j["country"] = data.country;
 	j["registration"] = data.registration;
@@ -131,11 +140,5 @@ void TSV::getDataForICAO(std::string& icao, icaoData& data) {
 }
 
 void TSV::init() {
-	indexLUT = buildLookupTable(1000); //every 1000 lines seems good
-
-	//std::string icao = "EFFFED";
-	//icaoData data{};
-	//getDataForICAO(icao, data);
-
-	//printIcaoData(data);
+    tsvIndex = buildLookupTable(100); //very smol step size
 }
