@@ -16,6 +16,9 @@ body {
     min-height: 20px;
     width: 100%;
     gap: 10%; /* Adds space between the logo and buttons */
+    font-family: "amaranth", sans-serif;
+    font-weight: 700;
+    font-style: italic;
 }
 
 .header-spacer {
@@ -50,7 +53,7 @@ body {
 
 .button-container {
   display: flex;
-  /*gap: 120px; /* Adjust spacing between buttons */
+  /*gap: 20px; /* Adjust spacing between buttons */
   justify-content: space-around;
   flex: 1;
   flex-direction: row;
@@ -65,15 +68,21 @@ body {
   cursor: pointer;
   border-radius: 5px;
   font-size: 150%;
+  font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
-.button1 {/* why does this even exist?*/
+.button1 {
+  /* this is so when the user is on the map (or any page) page the cursor doesnt 
+  imply that they can click on the map button (since theyre already on that page)
+  - visual reprensentation of what page the user is on */
   padding: 10px 50px;
-  background-color: #79a5b4;
+  background-color: #495e76;
   border: none;
   color: white;
   border-radius: 5px;
   font-size: 150%;
+  font-size: 150%;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
 .button:hover {
@@ -84,3 +93,68 @@ body {
     background-color: white;
     color: #79a5b4;
 }
+
+
+.subheader {
+  position: fixed; /* Fixed to top just below main header */
+  z-index: 3;
+  top: 80px;
+  display: flex;
+  justify-content: flex-start; /* Aligns items to the left */
+  align-items: center;
+  background-color: #d8d8d8;
+  padding: 10px 40px;
+  color: rgb(80, 80, 80);
+  border-style: solid;
+  border-width: 1px;
+  border-color: rgb(116, 115, 115);
+  min-height: 20px;
+  width: 100%;
+  gap: 20px; /* Adds space between the title and buttons */
+  font-family: "amaranth", sans-serif;
+    font-weight: 700;
+    font-style: italic;
+}
+
+.subheader-spacer {
+  position: static; /* Gives space for subheader at top of page */
+  z-index: -1;
+  display: flex;
+  justify-content: flex-start; /* Aligns items to the left */
+  align-items: center;
+  background-color: #d8d8d8;
+  padding: 25px 40px;
+  color: grey;
+  border-style: solid;
+  border-width: 1px;
+  border-color: rgb(116, 115, 115);
+  min-height: 20px;
+  width: 100%;
+  gap: 20px; /* Adds space between the title and buttons */
+}
+
+.categories-title {
+  font-size: 1.6em; /* Adjusted font size */
+  font-weight: bold;
+  margin: 0;
+}
+
+.categories-container {
+  display: flex;
+  gap: 50px; /* Adjust spacing between buttons */
+}
+
+.catbutton {
+  padding: 10px 50px;
+  background-color: #ffffff;
+  border: none;
+  color: rgb(80, 80, 80);
+  cursor: pointer;
+  border-radius: 12px;
+  font-size: 100%;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+  /* .catbutton:hover {
+      background-color: #e0c2b2;
+  } */

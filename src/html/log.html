@@ -3,76 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://use.typekit.net/xop8trk.css">
     <title>Log Page</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .subheader {
-            position: fixed; /* Fixed to top just below main header */
-            z-index: 3;
-            display: flex;
-            justify-content: flex-start; /* Aligns items to the left */
-            align-items: center;
-            background-color: #d8d8d8;
-            padding: 25px 40px;
-            color: grey;
-            border-style: solid;
-            border-width: 1px;
-            border-color: rgb(116, 115, 115);
-            min-height: 20px;
-            width: 100%;
-            gap: 380px; /* Adds space between the title and buttons */
-        }
-
-        .subheader-spacer {
-            position: static; /* Gives space for subheader at top of page */
-            z-index: -1;
-            display: flex;
-            justify-content: flex-start; /* Aligns items to the left */
-            align-items: center;
-            background-color: #d8d8d8;
-            padding: 25px 40px;
-            color: grey;
-            border-style: solid;
-            border-width: 1px;
-            border-color: rgb(116, 115, 115);
-            min-height: 20px;
-            width: 100%;
-            gap: 380px; /* Adds space between the title and buttons */
-        }
-
-        .categories-title {
-            font-size: 2em; /* Adjusted font size */
-            font-weight: bold;
-            margin: 0;
-        }
-
-        .categories-container {
-            display: flex;
-            gap: 60px; /* Adjust spacing between buttons */
-        }
-
-        .catbutton {
-            padding: 10px 50px;
-            background-color: #ffffff;
-            border: none;
-            color: grey;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 170%;
-        }
-
-            .catbutton:hover {
-                background-color: #cecfd0;
-            }
 
         /* Cards Section */
-        .cards-container {
-            display: flex;
-            justify-content: center;
-            gap: 100px; /* Space between cards */
-            margin-top: 30px;
-            padding: 20px;
-        }
 
         .card {
             z-index: 0;
@@ -82,20 +18,57 @@
             border-radius: 30px;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
             display: flex;
-            justify-content: center;
-            align-items: center;
+            flex-direction: column; /* Stack content vertically */
+            justify-content: flex-start; /* Align to the top */
             font-size: 1.5em;
             font-weight: bold;
             color: #333;
             text-align: center;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             cursor: pointer;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            padding: 20px;
         }
 
-            .card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3);
-            }
+        .card-img {
+            width: 100%;  /* Makes the image stretch to fit the card's width */
+            height: 200px; /* Fixed height for the image */
+            object-fit: cover; /* Ensures the image covers the area (may crop if aspect ratio doesn't match) */
+            border-radius: 10px;
+            margin-bottom: 50px; /* Adds space between the image and text */
+        }
+
+        .card-text {
+            list-style-type: disc; /* Creates bullet points */
+            padding-left: 20px; /* Adds indentation for the list */
+            text-align: left; /* Aligns the text to the left for readability */
+            color: #555;
+        }
+
+        .card-text li {
+            margin-bottom: 10px; /* Adds spacing between list items */
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .cards-container {
+            display: flex;
+            justify-content: center;
+            gap: 100px; /* Space between cards */
+            margin-top: 30px;
+            padding: 20px;
+        }
+
+    
+        .cards-container a .card {
+        width: 100%;
+        }
+
+       
+
     </style>
 </head>
 <body>
@@ -138,32 +111,48 @@
         </div>
     </div>
 
-    <div class="subheader-spacer">
 
-        <h2 class="categories-title">Categories:</h2>
+    <!-- Cards Section -->
+     <br> <br>
+     <div class="cards-container">
+        <a href="logexp.html" class="card">
+            <img src="media/beluga.jpg" alt="Card Image" class="card-img">
+            <ul class="card-text">
+                <h>Beluga Airbus</h>
+                <br> <br>
 
-        <div class="categories-container">
-            <button class="catbutton"><b>Airline</b></button>
-            <button class="catbutton"><b>Model</b></button>
-            <button class="catbutton"><b>A</b></button>
-            <button class="catbutton"><b>B</b></button>
-            <button class="catbutton"><b>Sort ^/v</b></button>
-
+                <li>Sample: Content 1</li>
+                <li>Sample: Content 2</li>
+                <li>Sample: Content 3</li>
+                <li>Sample: Content 4</li>
+            </ul>
+        </a>
+        <div class="card">
+            <img src="media/sample.png" alt="Card Image" class="card-img">
+            <ul class="card-text">
+                <h>Name</h>
+                <br> <br>
+                
+                <li>Sample: Content 1</li>
+                <li>Sample: Content 2</li>
+                <li>Sample: Content 3</li>
+                <li>Sample: Content 4</li>
+            </ul>
+        </div>
+        <div class="card">
+            <img src="media/sample.png" alt="Card Image" class="card-img">
+            <ul class="card-text">
+                <h>Name</h>
+                <br> <br>
+                
+                <li>Sample: Content 1</li>
+                <li>Sample: Content 2</li>
+                <li>Sample: Content 3</li>
+                <li>Sample: Content 4</li>
         </div>
     </div>
 
 
-    <!-- Cards Section -->
-    <div class="cards-container">
-        <a href="logexp.html"><div class="card">Card 1<br>(click me)</div></a>
-        <div class="card">Card 2</div>
-        <div class="card">Card 3</div>
-    </div>
-    <div class="cards-container">
-        <div class="card">Card 4</div>
-        <div class="card">Card 5</div>
-        <div class="card">Card 6</div>
-    </div>
 
 </body>
 </html>
