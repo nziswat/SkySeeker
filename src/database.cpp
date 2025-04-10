@@ -1,5 +1,5 @@
 #include "database.h"
-
+#include "message_handler.h"
 
 Database* Database::instance = nullptr;
 std::string dblabel = "DB";
@@ -55,7 +55,7 @@ void Database::saveAircraftData(const std::string& icao, const std::string& lat,
     char timeStr[80];
     localtime_s(&tstruct, &now);
     strftime(timeStr, sizeof(timeStr), "%Y-%m-%d %X", &tstruct);
-    
+    dbPrint("Trying to save (database) ICAO: " + icao + ", Timestamp: " + timeStr + ", Lat: " + lat + ", Lon: " + lon);
     std::string query = "INSERT OR REPLACE INTO AircraftData (icao, timestamp, latitude, longitude) VALUES ('" + icao + "', '" + timeStr + "', '" + lat + "', '" + lon + "');";
 
     char* errMsg = nullptr;
@@ -85,6 +85,41 @@ void Database::loadAllAircraftData() {
 
     sqlite3_finalize(stmt);
 }
+//update this later to return actual information on it, for now as long as return > 1, it's in the DB
+int Database::findAircraftByICAO(const std::string& icaoToFind) {
+    const char* query = "SELECT icao, timestamp, latitude, longitude FROM AircraftData WHERE icao = ?;";
+    sqlite3_stmt* stmt;
+    int rowCount = 0;
+
+    if (sqlite3_prepare_v2(db, query, -1, &stmt, nullptr) != SQLITE_OK) {
+        dbPrint("Failed to prepare statement: " + std::string(sqlite3_errmsg(db)));
+        return 0;
+    }
+
+    // Bind the ICAO value to the first parameter in the query
+    if (sqlite3_bind_text(stmt, 1, icaoToFind.c_str(), -1, SQLITE_TRANSIENT) != SQLITE_OK) {
+        dbPrint("Failed to bind ICAO: " + std::string(sqlite3_errmsg(db)));
+        sqlite3_finalize(stmt);
+        return 0;
+    }
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        std::string icao = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        std::string timestamp = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        std::string latitude = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+        std::string longitude = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+
+        dbPrint("ICAO: " + icao + ", Timestamp: " + timestamp + ", Lat: " + latitude + ", Lon: " + longitude);
+        ++rowCount;
+    }
+
+    sqlite3_finalize(stmt);
+    return rowCount;
+}
+
+
+
+
 
 Database& Database::getInstance(const std::string& dbPath) {
     if (instance == nullptr) {

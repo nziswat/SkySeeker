@@ -5,7 +5,7 @@
 #include <string>
 #include <thread>
 #include "skyseekerTSV.h"
-//#include "database.h"
+#include "database.h"
 
 class MessageHandler : public CefMessageRouterBrowserSide::Handler, public CefBaseRefCounted {
 public:
@@ -45,14 +45,25 @@ public:
 			return true;
 		}
         if (firsthalf == "savAircraft") {// check first 10 chars
-            //Database& db = Database::getInstance("collection.db");
-
+            Database& db = Database::getInstance("collection.db"); //get the database
             std::string icao = fullReq.substr(11, 6); // icao
             std::string lat = fullReq.substr(17, 6); //lat
             std::string lon = fullReq.substr(23, 6); // long;
-
-
+            sendDebug(icao +" "+ lat +" "+ lon);
+            db.saveAircraftData(icao, lat, lon);
             callback->Success(icao);
+            return true;
+        }
+        if (firsthalf == "lodAircraft") {// check first 10 chars
+            Database& db = Database::getInstance("collection.db"); //get the database
+            std::string icao = fullReq.substr(11, 6); // icao
+            int check = db.findAircraftByICAO(icao);
+            if (check > 0) {
+                callback->Success(icao);
+            }
+            else {
+                callback->Failure(1, "No matching save");
+            }
             return true;
         }
 

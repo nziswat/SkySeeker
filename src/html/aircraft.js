@@ -7,6 +7,7 @@ class Aircraft {
     // Constructor function to build Aircraft object
     constructor(ID) {
         this._ID = ID;
+        this._saved = false;
     }
 
     // Getters and Setters
@@ -78,6 +79,10 @@ class Aircraft {
 
     set prev_long(prev_long) { this._prev_long = prev_long; }
     get prev_long() { return this._prev_long; }
+
+    // saved
+    set saved(saved) { this._saved = saved; }
+    get saved() { return this._saved; }
 
 
     // https://airmetar.main.jp/radio/ADS-B%20Decoding%20Guide.pdf
@@ -249,8 +254,9 @@ class Aircraft {
         let query_string = `savAircraft${this.ID}${fixlat}${fixlong}`;
         window.cefQuery({
             request: query_string,
-            onSuccess: function (response) {
-                console.log("Aircraft Saved");
+            onSuccess: (response) => {
+                this.saved = true;
+                this.movingMarker.setIcon(savedIcon);
             },
             onFailure: function (error_code, error_message) {
                 console.error("Aircraft failed to save!", error_code, error_message);
@@ -258,14 +264,15 @@ class Aircraft {
         });
     }
     checkSaved() {
-        let query_string = `lodAircraft${this.id}`;
+        let query_string = `lodAircraft${this.ID}`;
         window.cefQuery({
             request: query_string,
-            onSuccess: function (response) {
-                console.log(`Aircraft ${this.id} loaded.`);
+            onSuccess: (response) => {
+                console.log(`Aircraft ${this.ID} loaded.`);
+                this.saved = true;
             },
             onFailure: function (error_code, error_message) {
-                console.error("Aircraft failed to save!", error_code, error_message);
+                //console.error("Aircraft not found", error_code, error_message);
             }
         });
 
@@ -283,6 +290,7 @@ function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
 
         // Create new aircraft object
         let newAircraft = new Aircraft(ID);
+        newAircraft.checkSaved(); //see if it's been saved to the database
 
         // Insert it into the hash map
         hashMap.set(ID, newAircraft);
@@ -322,6 +330,9 @@ function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
                     existingAircraft.movingMarker = L.Marker.movingMarker(
                         [[existingAircraft.lat, existingAircraft.long]], [0], { icon: planeIcon }
                     ).addTo(map);
+                    if (existingAircraft.saved == true) {
+                        existingAircraft.movingMarker.setIcon(savedIcon);
+                    }
 
                     existingAircraft.movingMarker.on('click', function (e) { //binds clicking the marker to the click function
                         aircraftClick(e, existingAircraft);

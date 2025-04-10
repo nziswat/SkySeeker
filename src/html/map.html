@@ -132,7 +132,7 @@
 
         <div class="categories-container">
             <button onclick="startStopDriver()" class="catbutton"><b>Start/Stop Driver</b></button>
-            <button class="catbutton"><b> Catch Flight</b></button>
+            <button onclick="selectedAircraft.save()" class="catbutton"><b>Catch Flight</b></button>
             <button class="catbutton"><b> Hide/ Unhide Paths</b></button>
         </div>
     </div>
@@ -192,6 +192,11 @@
         // Initialize plane icon
         const planeIcon = L.icon({
             iconUrl: 'media/plane-icon.svg',
+            iconSize: [40, 40],
+            iconAnchor: [20, 20] // Rotate around the center of the icon
+        });
+        const savedIcon = L.icon({ // icon for saved planes
+            iconUrl: 'media/cool-icon.svg',
             iconSize: [40, 40],
             iconAnchor: [20, 20] // Rotate around the center of the icon
         });
