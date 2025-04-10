@@ -1,5 +1,13 @@
 // Main script for SkySeeker
 
+
+
+//flags
+globalLines = false;
+
+
+
+
 // Function to initialize the map
 function initializeMap(containerId, center, zoom) {
 
@@ -115,36 +123,33 @@ function sortTable() {
 
 //use when clicking on a single plane
 function aircraftClick(e, aircraft) {
+    selectedAircraft = aircraft; //set globally selected aircraft to what we just clicked
     updateDetailTable(aircraft);
     aircraft.checkICAOData();
     // Make all polylines transparent/invisible
-    hashMap.forEach((value, key) => {
-        if (value.polyline) {
-            value.polyline.setStyle({
-                opacity: 0
-            });
-        }
-    });
-    // Make selected aircraft polyline visible
-    aircraft.polyline.setStyle({
-        opacity: 1
-    });
-
-
+    if (!globalLines) {
+        hashMap.forEach((value, key) => {
+            if (value.polyline) {
+                value.polyline.setStyle({
+                    opacity: 0
+                });
+            }
+        });
+        // Make selected aircraft polyline visible
+        aircraft.polyline.setStyle({
+            opacity: 1
+        });
+    }
 }
 function updateDetailTable(aircraft) {
     const container = document.getElementById('detailTable');
-    const table = container.firstChild; //the actual table should be the only child
-    selectedAircraft = aircraft;
-
-    
-    //TODO: actually use table instead of finding all of this by ID
-    document.getElementById('planeID').textContent = aircraft.ID;
-    document.getElementById('planeLat').textContent = aircraft.lat.toFixed(3);
-    document.getElementById('planeLong').textContent = aircraft.long.toFixed(3);
-    document.getElementById('planeHead').textContent = aircraft.head.toFixed(2);
-    document.getElementById('planeAlt').textContent = aircraft.alt;
-    document.getElementById('planeSpeed').textContent = aircraft.speed.toFixed(0);
+    const table = container.querySelector('table'); // strange things...
+    table.rows[1].cells[1].textContent = aircraft.ID;
+    table.rows[2].cells[1].textContent = aircraft.lat.toFixed(3);
+    table.rows[3].cells[1].textContent = aircraft.long.toFixed(3);
+    table.rows[4].cells[1].textContent = aircraft.head.toFixed(2);
+    table.rows[5].cells[1].textContent = aircraft.alt;
+    table.rows[6].cells[1].textContent = aircraft.speed.toFixed(0);
 
 }
 
@@ -305,6 +310,27 @@ function debugcheckICAOData(stwing) {
         }
     });
 
+
+}
+
+function toggleLines() {
+    globalLines = !globalLines;
+    let opacityValue = 0;
+    if (globalLines){
+        opacityValue = 1
+    }
+    hashMap.forEach((value, key) => {
+        if (value.polyline) {
+            value.polyline.setStyle({
+                opacity: opacityValue,
+            });
+        }
+    })
+    if (selectedAircraft) { //always reset selected aircraft to visible
+        selectedAircraft.polyline.setStyle({
+            opacity: 1,
+        });
+    }
 
 }
 
