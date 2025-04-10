@@ -133,7 +133,7 @@
         <div class="categories-container">
             <button onclick="startStopDriver()" class="catbutton"><b>Start/Stop Driver</b></button>
             <button onclick="selectedAircraft.save()" class="catbutton"><b>Catch Flight</b></button>
-            <button class="catbutton"><b> Hide/ Unhide Paths</b></button>
+            <button onclick="toggleLines()" class="catbutton"><b>Hide / Unhide Paths</b></button>
         </div>
     </div>
 
@@ -148,11 +148,11 @@
                     <th>
                         Value 
                         <button onclick="toggleDetailTable()" id="toggleButton" 
-                        style="margin-left: 20px;"> + </button>
+                        style="margin-left: 20px;"> - </button>
                     </th>
                 </tr>
             </thead>
-            <tbody style="display: none;">
+            <tbody style="display: table-row-group;">
                 <tr><td>ICAO</td><td id="planeID"></td></tr>
                 <tr><td>Latitude</td><td id="planeLat"></td></tr>
                 <tr><td>Longitude</td><td id="planeLong"></td></tr>
