@@ -122,8 +122,20 @@ function sortTable() {
         });
     });
     }
-    
 
+    //get rid of ICAO from table
+function vaporize(ID) {
+    const container = document.getElementById('aircraftTable');
+    const table = container.querySelector('table');
+    const rows = table.querySelectorAll('tr');
+    for (let row of rows) {
+        const firstCell = row.cells[0];
+        if (firstCell && firstCell.textContent.trim() === ID) {
+            row.remove();
+            break;
+        }
+    }
+}
 //use when clicking on a single plane
 function aircraftClick(e, aircraft) {
     selectedAircraft = aircraft; //set globally selected aircraft to what we just clicked
@@ -273,6 +285,7 @@ function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
     // If it does exist, update the aircraft object
     else {
         let existingAircraft = hashMap.get(ID);
+        existingAircraft.interruptTimer() //'wake' the aircraft
         let properties = { head, alt, speed };
         for (let key in properties) {
             if (properties[key] != undefined) {

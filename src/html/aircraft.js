@@ -8,6 +8,9 @@ class Aircraft {
     constructor(ID) {
         this._ID = ID;
         this._saved = false; // saved to database
+        this.ghostTimeout = null;
+        this.ghostTimeout = setTimeout(() => this.ghostAircraft(), 6000);
+        this.deleteTimeout = null;
     }
 
     // Getters and Setters
@@ -244,7 +247,6 @@ class Aircraft {
     }
     //function to call to database to get more info on aircraft (if possible)
     checkICAOData() {
-    console.log(`Trying to check ICAO data for ${this.ID}`);
     let query_string = `getICAOData${this.ID}`;
         window.cefQuery({
             request: query_string,
@@ -252,7 +254,6 @@ class Aircraft {
                 let parse = JSON.parse(response);
                 this.model = parse.typeCode;
                 this.country = parse.country;
-                console.log(this.model);
             },
             onFailure: (error_code, error_message) => {
                 console.error("Query failed", error_code, error_message);
@@ -292,6 +293,34 @@ class Aircraft {
 
 
     }
+    //function to ghost aircraft after 60 seconds
+    ghostAircraft() {
+        if (this.movingMarker) { 
+            this.movingMarker.setOpacity(0.25);
+        }
+        this.deleteTimeout = setTimeout(() => this.deleteAircraft(), 60000);
+
+    }
+    //interrupt timer
+    interruptTimer() {
+        clearTimeout(this.ghostTimeout); // clear first timeout and reset
+        this.ghostTimeout = setTimeout(() => this.ghostAircraft(), 60000);
+        if (this.movingMarker) {
+            this.movingMarker.setOpacity(1);
+        }
+        clearTimeout(this.deleteTimeout);
+    }
+    deleteAircraft() {
+        vaporize(this.ID);
+        hashMap.delete(this.ID);
+        if (this.movingMarker) {
+            this.movingMarker.remove();
+        }
+        if (this.polyline) {
+            this.polyline.remove();
+        }
+    }
+
 
 
 }
