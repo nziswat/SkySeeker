@@ -127,8 +127,6 @@ function sortTable() {
 //use when clicking on a single plane
 function aircraftClick(e, aircraft) {
     selectedAircraft = aircraft; //set globally selected aircraft to what we just clicked
-    updateDetailTable(aircraft);
-    aircraft.checkICAOData();
     // Make all polylines transparent/invisible
     if (!globalLines) {
         hashMap.forEach((value, key) => {
@@ -143,6 +141,7 @@ function aircraftClick(e, aircraft) {
             opacity: 1
         });
     }
+    updateDetailTable(aircraft);
 }
 function updateDetailTable(aircraft) {
     const container = document.getElementById('detailTable');
@@ -153,6 +152,8 @@ function updateDetailTable(aircraft) {
     table.rows[4].cells[1].textContent = aircraft.head.toFixed(2);
     table.rows[5].cells[1].textContent = aircraft.alt;
     table.rows[6].cells[1].textContent = aircraft.speed.toFixed(0);
+    table.rows[7].cells[1].textContent = aircraft.model !== "UNKNOWN" ? aircraft.model : "N/A";
+    table.rows[8].cells[1].textContent = aircraft.country !== "UNKNOWN" ? aircraft.country : "N/A";
 
 }
 //collapse / expand
@@ -253,6 +254,10 @@ function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
 
         // Create new aircraft object
         let newAircraft = new Aircraft(ID);
+        newAircraft.checkSaved(); //see if it's been saved to the database
+        newAircraft.checkICAOData(); //look up ICAO data
+        //TODO: considered promising the above function but it seems like it works fast enough with the look up table in action
+
 
         // Insert it into the hash map
         hashMap.set(ID, newAircraft);
@@ -292,6 +297,9 @@ function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
                     existingAircraft.movingMarker = L.Marker.movingMarker(
                         [[existingAircraft.lat, existingAircraft.long]], [0], { icon: planeIcon }
                     ).addTo(map);
+                    if (existingAircraft.saved == true) {
+                        existingAircraft.movingMarker.setIcon(savedIcon);
+                    }
 
                     existingAircraft.movingMarker.on('click', function (e) { //binds clicking the marker to the click function
                         aircraftClick(e, existingAircraft);

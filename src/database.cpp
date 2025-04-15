@@ -129,6 +129,7 @@ Database& Database::getInstance(const std::string& dbPath) {
             instance = nullptr;
         }
     }
-    dbPrint("getting database instance");
+    //dbPrint("getting database instance");
+    //TODO: save as ref in relevant part (map javascript)
     return *instance;
 }

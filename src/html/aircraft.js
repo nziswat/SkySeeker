@@ -7,7 +7,7 @@ class Aircraft {
     // Constructor function to build Aircraft object
     constructor(ID) {
         this._ID = ID;
-        this._saved = false;
+        this._saved = false; // saved to database
     }
 
     // Getters and Setters
@@ -73,7 +73,7 @@ class Aircraft {
     get newestIsOdd() { return this._newestIsOdd; }
 
 
-    // Save lasr calculated lat and long in case of overriding incorrect first position
+    // Save last calculated lat and long in case of overriding incorrect first position
     set prev_lat(prev_lat) { this._prev_lat = prev_lat; }
     get prev_lat() { return this._prev_lat; }
 
@@ -83,6 +83,16 @@ class Aircraft {
     // saved
     set saved(saved) { this._saved = saved; }
     get saved() { return this._saved; }
+
+    // model
+    set model(model) { this._model = model; }
+    get model() { return this._model; }
+
+    // country of origin
+    set country(country) { this._country = country; }
+    get country() { return this._country; }
+
+
 
 
     // https://airmetar.main.jp/radio/ADS-B%20Decoding%20Guide.pdf
@@ -236,15 +246,18 @@ class Aircraft {
     checkICAOData() {
     console.log(`Trying to check ICAO data for ${this.ID}`);
     let query_string = `getICAOData${this.ID}`;
-    window.cefQuery({
-        request: query_string,
-        onSuccess: function (response) {
-            console.log("ICAO DATA GET!" + response);
-        },
-        onFailure: function (error_code, error_message) {
-            console.error("Literally could not get the frickin data wtf kevin", error_code, error_message);
-        }
-    });
+        window.cefQuery({
+            request: query_string,
+            onSuccess: (response) => {
+                let parse = JSON.parse(response);
+                this.model = parse.typeCode;
+                this.country = parse.country;
+                console.log(this.model);
+            },
+            onFailure: (error_code, error_message) => {
+                console.error("Query failed", error_code, error_message);
+            }
+        });
     }
     //save aircraft to DB
     save() {
@@ -263,6 +276,7 @@ class Aircraft {
             }
         });
     }
+    // check if aircraft is in database
     checkSaved() {
         let query_string = `lodAircraft${this.ID}`;
         window.cefQuery({
@@ -282,86 +296,8 @@ class Aircraft {
 
 }
 
-// Function to update Aircraft/flight info
-function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
-
-    // If it does not exist, create a new aircraft object
-    if (hashMap.get(ID) == undefined) {
-
-        // Create new aircraft object
-        let newAircraft = new Aircraft(ID);
-        newAircraft.checkSaved(); //see if it's been saved to the database
-
-        // Insert it into the hash map
-        hashMap.set(ID, newAircraft);
-
-        // Check if lat and long are defined
-        if ((lat != undefined) && (long != undefined)) {
-            newAircraft.updateLatLong(lat, long, fflag);
-        }
-        //console.log("Updated Aircraft Data3:", "icao:", newAircraft.ID, "lat:", newAircraft.lat, "long:", newAircraft.long,
-        //    "head:", newAircraft.head, "alt:", newAircraft.alt, "speed:", newAircraft.speed);
-
-    }
-    // If it does exist, update the aircraft object
-    else {
-        let existingAircraft = hashMap.get(ID);
-        let properties = { head, alt, speed };
-        for (let key in properties) {
-            if (properties[key] != undefined) {
-                existingAircraft[key] = properties[key];  // Correct property update
-            }
-        }
-
-        // Check if lat and long are defined
-        if ((lat != undefined) && (long != undefined)) {
-            // Try to update them
-            existingAircraft.updateLatLong(lat, long, fflag);
-        }
-
-
-        // Update the movingMarker and polyline
-        if ((existingAircraft.lat != undefined) && (existingAircraft.long != undefined)) {
-
-            // If moving marker and polyline are undefined, initialize them
-            if (existingAircraft.movingMarker == undefined) {
-                // Initialize moving marker if heading is known
-                if (existingAircraft.head != undefined) {
-                    existingAircraft.movingMarker = L.Marker.movingMarker(
-                        [[existingAircraft.lat, existingAircraft.long]], [0], { icon: planeIcon }
-                    ).addTo(map);
-                    if (existingAircraft.saved == true) {
-                        existingAircraft.movingMarker.setIcon(savedIcon);
-                    }
-
-                    existingAircraft.movingMarker.on('click', function (e) { //binds clicking the marker to the click function
-                        aircraftClick(e, existingAircraft);
-                    });
-                }
-                // Create a polyline to track the plane's path
-                existingAircraft.polyline = L.polyline([[existingAircraft.lat, existingAircraft.long]], { color: 'blue', opacity: 0 }).addTo(map);
-            }
-            // Otherwise, just update the movingMarker and polyline like normal
-            else {
-                existingAircraft.movingMarker.setLatLng([existingAircraft.lat, existingAircraft.long]);
-                existingAircraft.polyline.addLatLng([existingAircraft.lat, existingAircraft.long]);
-            }
-        }
-        if ((head != undefined) && (existingAircraft.movingMarker != undefined)) { //???: couldn't this be moved?
-            existingAircraft.movingMarker.setRotationAngle(existingAircraft.head +135); // +135 rotate for given icon
-        }
-
-        if (selectedAircraft != undefined){ //if there is a selected aircraft-
-        if (existingAircraft.ID == selectedAircraft.ID) {//-that is the same as the new information we just got-
-            updateDetailTable(existingAircraft);//be sure to update the table
-        }
-        }
-        //console.log("Updated Aircraft Data3:", "icao:", existingAircraft.ID, "lat:", existingAircraft.lat, "long:", existingAircraft.long,
-        //   "head:", existingAircraft.head, "alt:", existingAircraft.alt, "speed:", existingAircraft.speed);
-    }
-        
-}
-function formatToSixChars(num) {// minor helper function to force 6 chars (for query)
+// minor helper function to force 6 chars (for query)
+function formatToSixChars(num) {
     let str = num.toFixed(6);          
     str = parseFloat(str).toString();  
     if (str.length > 6) {
