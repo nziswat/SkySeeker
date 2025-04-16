@@ -20,6 +20,7 @@ public:
 
     void saveAircraftData(const std::string& icao, const std::string& lat, const std::string& lon);
     void loadAllAircraftData();
+    void deleteAllAircraftData();
     int findAircraftByICAO(const std::string& icaoToFind);
 
     static Database& getInstance(const std::string& dbPath = "");

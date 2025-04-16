@@ -85,6 +85,26 @@ void Database::loadAllAircraftData() {
 
     sqlite3_finalize(stmt);
 }
+
+void Database::deleteAllAircraftData() {
+    const char* query = "DELETE FROM AircraftData;";
+    sqlite3_stmt* stmt;
+
+    if (sqlite3_prepare_v2(db, query, -1, &stmt, nullptr) != SQLITE_OK) {
+        dbPrint("Failed to prepare delete: " + std::string(sqlite3_errmsg(db)));
+        return;
+    }
+
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        dbPrint("Failed to execute delete: " + std::string(sqlite3_errmsg(db)));
+    }
+    else {
+        dbPrint("All aircraft data deleted.");
+    }
+
+    sqlite3_finalize(stmt);
+}
+
 //update this later to return actual information on it, for now as long as return > 1, it's in the DB
 int Database::findAircraftByICAO(const std::string& icaoToFind) {
     const char* query = "SELECT icao, timestamp, latitude, longitude FROM AircraftData WHERE icao = ?;";

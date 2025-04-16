@@ -29,6 +29,18 @@ public:
             callback->Success(driverStatus ? "Driver Stopped" : "Driver Started");
             return true;
         }
+        if (request == "debugDatabase") {
+            Database& db = Database::getInstance("collection.db"); //get the database
+            db.loadAllAircraftData();
+            callback->Success("database got");
+            return true;
+        }
+        if (request == "debugDeleteDatabase") {
+            Database& db = Database::getInstance("collection.db"); //get the database
+            db.deleteAllAircraftData();
+            callback->Success("database gone?!");
+            return true;
+        }
 
         //sliced requests past this point
         //first 11 chars are checked for what function it is
