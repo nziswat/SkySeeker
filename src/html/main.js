@@ -328,7 +328,7 @@ function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
             }
         }
         if ((head != undefined) && (existingAircraft.movingMarker != undefined)) { //???: couldn't this be moved?
-            existingAircraft.movingMarker.setRotationAngle(existingAircraft.head + 135); // +135 rotate for given icon
+            existingAircraft.movingMarker.setRotationAngle(existingAircraft.head + 315); // +315 rotate for given icon
         }
 
         if (selectedAircraft != undefined) { //if there is a selected aircraft-
@@ -354,8 +354,13 @@ function updateAircraftData(data) {
             let ewVelocity = aircraftData.ew_velocity * (2 * aircraftData.ew_dir - 1);  //this just makes it -1 or 1
             aircraftData.heading = Math.atan2(ewVelocity, nsVelocity) * 180 / Math.PI;
             if (aircraftData.heading < 0) {
-                aircraftData.heading += 360 // turn negatives into positives
-            }
+                aircraftData.heading += 360; // turn negatives into positives
+            } 
+            // fix heading by 180
+            aircraftData.heading += 180;
+            if (aircraftData.heading >= 360) {
+                aircraftData.heading -= 360;
+            }           
         }
     }
 
