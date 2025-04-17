@@ -308,7 +308,7 @@ function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
                 // Initialize moving marker if heading is known
                 if (existingAircraft.head != undefined) {
                     existingAircraft.movingMarker = L.Marker.movingMarker(
-                        [[existingAircraft.lat, existingAircraft.long]], [0], { icon: planeIcon }
+                        [[existingAircraft.lat, existingAircraft.long]], [0], { icon: planeIcon, rotationAngle: existingAircraft.head + 315 }
                     ).addTo(map);
                     if (existingAircraft.saved == true) {
                         existingAircraft.movingMarker.setIcon(savedIcon);
