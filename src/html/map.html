@@ -116,56 +116,57 @@
     <div id="subheader" class="subheader">
         <h2 class="categories-title">Functions:</h2>
         <div class="categories-container">
-            <button onclick="startStopDriver()" class="catbutton"><b>Start/Stop Driver</b></button>
             <button onclick="selectedAircraft.save()" class="catbutton"><b>Catch Flight</b></button>
             <button onclick="toggleLines()" class="catbutton"><b>Hide / Unhide Paths</b></button>
         </div>
     </div>
 
     <!-- Floating Table -->
-    <div id="detailTable" class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Property</th>
-                    <th>
-                        Value 
-                        <button onclick="toggleDetailTable()" id="toggleButton" 
-                        style="margin-left: 20px;"> - </button>
-                    </th>
-                </tr>
-            </thead>
-            <tbody style="display: table-row-group;">
-                <tr><td>ICAO</td><td id="planeID"></td></tr>
-                <tr><td>Latitude</td><td id="planeLat"></td></tr>
-                <tr><td>Longitude</td><td id="planeLong"></td></tr>
-                <tr><td>Heading</td><td id="planeHead"></td></tr>
-                <tr><td>Altitude</td><td id="planeAlt"></td></tr>
-                <tr><td>Speed</td><td id="planeSpeed"></td></tr>
-                <tr><td>Model</td><td id="planeModel"></td></tr>
-                <tr><td>Country</td><td id="planeCountry"></td></tr>
-            </tbody>
-        </table>
-    </div>
+        <div id="detailTable" class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>
+                            Value
+                            <button onclick="toggleDetailTable()" id="toggleButton"
+                                    style="margin-left: 20px;">
+                                -
+                            </button>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody style="display: table-row-group;">
+                    <tr><td>ICAO</td><td id="planeID"></td></tr>
+                    <tr><td>Latitude</td><td id="planeLat"></td></tr>
+                    <tr><td>Longitude</td><td id="planeLong"></td></tr>
+                    <tr><td>Heading</td><td id="planeHead"></td></tr>
+                    <tr><td>Altitude</td><td id="planeAlt"></td></tr>
+                    <tr><td>Speed</td><td id="planeSpeed"></td></tr>
+                    <tr><td>Model</td><td id="planeModel"></td></tr>
+                    <tr><td>Country</td><td id="planeCountry"></td></tr>
+                </tbody>
+            </table>
+        </div>
 
-    <!-- Table of All Aircraft -->
-    <div id="aircraftTable" class="table-container"></div>
+        <!-- Table of All Aircraft -->
+        <div id="aircraftTable" class="table-container"></div>
 
 
-    <!-- Map container -->
-    <div id="map"></div>
+        <!-- Map container -->
+        <div id="map"></div>
 
-    <script>
+        <script>
 
-        window.addEventListener('load', spaceHeader);
-        window.addEventListener('resize', spaceHeader);
-        // Initialize map
-        const map = initializeMap("map", [27.947954, -82.466856], 12); // Default: Tampa
-        // Initialize aircraft table
-        createAircraftTable();
-        makeDraggable(document.getElementById('detailTable'));
-        makeDraggable(document.getElementById('aircraftTable'));
-        // map boundaries
+            window.addEventListener('load', spaceHeader);
+            window.addEventListener('resize', spaceHeader);
+            // Initialize map
+            const map = initializeMap("map", [27.947954, -82.466856], 12); // Default: Tampa
+            // Initialize aircraft table
+            createAircraftTable();
+            makeDraggable(document.getElementById('detailTable'));
+            makeDraggable(document.getElementById('aircraftTable'));
+            // map boundaries
             const bounds = L.latLngBounds(
                 L.latLng(-85, -180),  // sw corner
                 L.latLng(85, 180)     // ne corner
@@ -176,22 +177,22 @@
             });
 
 
-        // Initialize plane icon
-        const planeIcon = L.icon({
-            iconUrl: 'media/plane-icon.svg',
-            iconSize: [40, 40],
-            iconAnchor: [20, 20] // Rotate around the center of the icon
-        });
-        const savedIcon = L.icon({ // icon for saved planes
-            iconUrl: 'media/cool-icon.svg',
-            iconSize: [40, 40],
-            iconAnchor: [20, 20] // Rotate around the center of the icon
-        });
+            // Initialize plane icon
+            const planeIcon = L.icon({
+                iconUrl: 'media/plane-icon.svg',
+                iconSize: [40, 40],
+                iconAnchor: [20, 20] // Rotate around the center of the icon
+            });
+            const savedIcon = L.icon({ // icon for saved planes
+                iconUrl: 'media/cool-icon.svg',
+                iconSize: [40, 40],
+                iconAnchor: [20, 20] // Rotate around the center of the icon
+            });
 
-        // variable used when clicking on an aircraft
-        let selectedAircraft;
-        // Initialize the hash map to store aircrafts
-        let hashMap = new Map();
-    </script>
+            // variable used when clicking on an aircraft
+            let selectedAircraft;
+            // Initialize the hash map to store aircrafts
+            let hashMap = new Map();
+        </script>
 </body>
 </html>

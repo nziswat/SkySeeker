@@ -11,14 +11,14 @@ body {
     justify-content: flex-start; /* Aligns items to the left */
     align-items: center;
     background-color: #333;
-    padding: 2px 20px;
+    padding: 0px 20px;
     color: white;
     min-height: 20px;
     width: 100%;
-    gap: 10%; /* Adds space between the logo and buttons */
+    /*gap: 10%; /* Adds space between the logo and buttons */
     font-family: "amaranth", sans-serif;
     font-weight: 700;
-    font-style: italic;
+    /*font-style: italic;*/
 }
 
 .header-spacer {
@@ -57,7 +57,7 @@ body {
 .button-container {
   display: flex;
   /*gap: 20px; /* Adjust spacing between buttons */
-  justify-content: space-around;
+  justify-content: space-evenly;
   flex: 1;
   flex-direction: row;
   width: 100vh;
@@ -108,14 +108,14 @@ body {
   padding: 10px 40px;
   color: rgb(80, 80, 80);
   border-style: solid;
-  border-width: 1px;
+  border-width: 0px 0px 1px 0px;
   border-color: rgb(116, 115, 115);
   min-height: 20px;
   width: 100%;
   gap: 20px; /* Adds space between the title and buttons */
   font-family: "amaranth", sans-serif;
-    font-weight: 700;
-    font-style: italic;
+  font-weight: 700;
+  /*font-style: italic;*/
 }
 
 .categories-title {
@@ -125,8 +125,13 @@ body {
 }
 
 .categories-container {
-  display: flex;
-  gap: 50px; /* Adjust spacing between buttons */
+    display: flex;
+    flex-direction: row;
+    gap: 10%;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    /* gap: 50px; /* Adjust spacing between buttons */
 }
 
 .catbutton {
