@@ -6,9 +6,9 @@
     <link rel="stylesheet" href="https://use.typekit.net/xop8trk.css">
     <title>Log Page</title>
     <link rel="stylesheet" href="style.css">
-    <script src="log.js"></script>
-    <script src="main.js"></script>
-    <script src="aircraft.js"></script>
+    <script src="log.js" defer></script>
+    <script src="main.js" defer></script>
+    <script src="aircraft.js" defer></script>
     <style>
 
         /* Cards Section */
@@ -16,8 +16,9 @@
         .card {
             z-index: 0;
             background-color: #f8f8f8;
-            width: 500px;
-            height: 700px;
+            width: 26.04%; /* approx 500px for 1920 x 1080 */
+            height: auto;
+            aspect-ratio: 5/7;
             border-radius: 30px;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
             display: flex;
@@ -35,7 +36,7 @@
 
         .card-img {
             width: 100%; /* Makes the image stretch to fit the card's width */
-            height: 200px; /* Fixed height for the image */
+            height: auto; /* Fixed height for the image */                                 /* why is this fixed im changing it, was 200px */
             object-fit: cover; /* Ensures the image covers the area (may crop if aspect ratio doesn't match) */
             border-radius: 10px;
             margin-bottom: 50px; /* Adds space between the image and text */
@@ -114,6 +115,8 @@
 
     <!-- Cards Section -->
     <br><br>
+    <div id="cards-container"></div>
+    <!--
     <div class="cards-container">
         <a href="logexp.html" class="card">
             <img src="media/beluga.jpg" alt="Card Image" class="card-img">
@@ -154,7 +157,7 @@
             </ul>
         </a>
     </div>
-
+    -->
     <script>
 
 
