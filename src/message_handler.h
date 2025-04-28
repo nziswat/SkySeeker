@@ -23,15 +23,20 @@ public:
         CefRefPtr<Callback> callback) override {
         if (request == "startStopDriver") {
             driverStatus = !driverStatus;
-
-
             // Send response back to JS
             callback->Success(driverStatus ? "Driver Stopped" : "Driver Started");
             return true;
         }
+        if (request == "loadDatabase") {
+            Database& db = Database::getInstance("collection.db"); //get the database
+            std::string databaseMessage;
+            db.loadAllAircraftData(databaseMessage);
+            callback->Success(databaseMessage);
+            return true;
+        }
         if (request == "debugDatabase") {
             Database& db = Database::getInstance("collection.db"); //get the database
-            db.loadAllAircraftData();
+            db.debugLoadAllAircraftData();
             callback->Success("database got");
             return true;
         }

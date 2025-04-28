@@ -65,7 +65,7 @@ void Database::saveAircraftData(const std::string& icao, const std::string& lat,
     }
 }
 
-void Database::loadAllAircraftData() {
+void Database::debugLoadAllAircraftData() {
     const char* query = "SELECT icao, timestamp, latitude, longitude FROM AircraftData;";
     sqlite3_stmt* stmt;
 
@@ -83,6 +83,32 @@ void Database::loadAllAircraftData() {
         dbPrint("ICAO: " + icao + ", Timestamp: " + timestamp + ", Lat: " + latitude + ", Lon: " + longitude);
     }
 
+    sqlite3_finalize(stmt);
+}
+
+void Database::loadAllAircraftData(std::string& message) {
+    const char* query = "SELECT icao, timestamp, latitude, longitude FROM AircraftData;";
+    sqlite3_stmt* stmt;
+    nlohmann::json handoverArray = nlohmann::json::array();
+
+    if (sqlite3_prepare_v2(db, query, -1, &stmt, nullptr) != SQLITE_OK) {
+        dbPrint("Failed to fetch data: " + std::string(sqlite3_errmsg(db)));
+        return;
+    }
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        nlohmann::json j; // struct to json for js handling
+        std::string icao = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        std::string timestamp = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        std::string latitude = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+        std::string longitude = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+        j["icao"] = icao;
+        j["timestamp"] = timestamp;
+        j["latitude"] = latitude;
+        j["longitude"] = longitude;
+        handoverArray.push_back(j);
+    }
+    message = handoverArray.dump();
     sqlite3_finalize(stmt);
 }
 

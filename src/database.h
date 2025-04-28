@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include <ctime>
+#include <src/json.h>
 
 class MessageHandler; //forward declared so cmake doesn't go on a rampage
 
@@ -19,7 +20,8 @@ public:
     bool init();
 
     void saveAircraftData(const std::string& icao, const std::string& lat, const std::string& lon);
-    void loadAllAircraftData();
+    void loadAllAircraftData(std::string& message);
+    void debugLoadAllAircraftData();
     void deleteAllAircraftData();
     int findAircraftByICAO(const std::string& icaoToFind);
 
