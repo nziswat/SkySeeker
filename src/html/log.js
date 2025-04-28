@@ -6,7 +6,7 @@ function loadDatabase(callback) {
         onSuccess: (response) => {
             let parse = JSON.parse(response);
             console.log(parse)
-           callback(parse);
+            callback(parse);
         },
         onFailure: function (error_code, error_message) {
             console.log("yeah failed lol")
