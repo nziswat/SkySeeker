@@ -56,7 +56,7 @@ std::vector<indexEntry> buildLookupTable(size_t step = 1000) {
 
 	file.close();
 
-	std::cout << "[DEBUG] Lookup table built with " << index.size() << " entries.\n";
+	//std::cout << "[DEBUG] Lookup table built with " << index.size() << " entries.\n";
 	return index;
 }
 
@@ -73,11 +73,11 @@ std::vector<std::string> explodeTab(const std::string& input) {
 }
 
 void TSV::getDataForICAO(std::string& icao, icaoData& data) {
-	std::cout << "[DEBUG] Searching for ICAO: " << icao << "\n";
+	//std::cout << "[DEBUG] Searching for ICAO: " << icao << "\n";
 
 	std::ifstream file(tsvFilename);
 	if (!file.is_open()) {
-		std::cerr << "[ERROR] modes.tsv not found in data dir\n";
+		//std::cerr << "[ERROR] modes.tsv not found in data dir\n";
 		return;
 	}
 
@@ -91,7 +91,7 @@ void TSV::getDataForICAO(std::string& icao, icaoData& data) {
 		--it;
 	}
 
-	std::cout << "[DEBUG] Starting search from ICAO: " << it->icao << " at file position: " << it->pos << "\n";
+	//std::cout << "[DEBUG] Starting search from ICAO: " << it->icao << " at file position: " << it->pos << "\n";
 	file.seekg(it->pos);
 
 	std::string line;
