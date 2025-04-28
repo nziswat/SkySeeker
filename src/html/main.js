@@ -122,13 +122,23 @@ function sortTable() {
         });
     });
     }
-    
 
+    //get rid of ICAO from table
+function vaporize(ID) {
+    const container = document.getElementById('aircraftTable');
+    const table = container.querySelector('table');
+    const rows = table.querySelectorAll('tr');
+    for (let row of rows) {
+        const firstCell = row.cells[0];
+        if (firstCell && firstCell.textContent.trim() === ID) {
+            row.remove();
+            break;
+        }
+    }
+}
 //use when clicking on a single plane
 function aircraftClick(e, aircraft) {
     selectedAircraft = aircraft; //set globally selected aircraft to what we just clicked
-    updateDetailTable(aircraft);
-    aircraft.checkICAOData();
     // Make all polylines transparent/invisible
     if (!globalLines) {
         hashMap.forEach((value, key) => {
@@ -143,6 +153,7 @@ function aircraftClick(e, aircraft) {
             opacity: 1
         });
     }
+    updateDetailTable(aircraft);
 }
 function updateDetailTable(aircraft) {
     const container = document.getElementById('detailTable');
@@ -153,6 +164,8 @@ function updateDetailTable(aircraft) {
     table.rows[4].cells[1].textContent = aircraft.head.toFixed(2);
     table.rows[5].cells[1].textContent = aircraft.alt;
     table.rows[6].cells[1].textContent = aircraft.speed.toFixed(0);
+    table.rows[7].cells[1].textContent = aircraft.model !== "UNKNOWN" ? aircraft.model : "N/A";
+    table.rows[8].cells[1].textContent = aircraft.country !== "UNKNOWN" ? aircraft.country : "N/A";
 
 }
 //collapse / expand
@@ -253,6 +266,10 @@ function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
 
         // Create new aircraft object
         let newAircraft = new Aircraft(ID);
+        newAircraft.checkSaved(); //see if it's been saved to the database
+        newAircraft.checkICAOData(); //look up ICAO data
+        //TODO: considered promising the above function but it seems like it works fast enough with the look up table in action
+
 
         // Insert it into the hash map
         hashMap.set(ID, newAircraft);
@@ -268,6 +285,7 @@ function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
     // If it does exist, update the aircraft object
     else {
         let existingAircraft = hashMap.get(ID);
+        existingAircraft.interruptTimer() //'wake' the aircraft
         let properties = { head, alt, speed };
         for (let key in properties) {
             if (properties[key] != undefined) {
@@ -290,8 +308,11 @@ function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
                 // Initialize moving marker if heading is known
                 if (existingAircraft.head != undefined) {
                     existingAircraft.movingMarker = L.Marker.movingMarker(
-                        [[existingAircraft.lat, existingAircraft.long]], [0], { icon: planeIcon }
+                        [[existingAircraft.lat, existingAircraft.long]], [0], { icon: planeIcon, rotationAngle: existingAircraft.head + 315 }
                     ).addTo(map);
+                    if (existingAircraft.saved == true) {
+                        existingAircraft.movingMarker.setIcon(savedIcon);
+                    }
 
                     existingAircraft.movingMarker.on('click', function (e) { //binds clicking the marker to the click function
                         aircraftClick(e, existingAircraft);
@@ -307,7 +328,7 @@ function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
             }
         }
         if ((head != undefined) && (existingAircraft.movingMarker != undefined)) { //???: couldn't this be moved?
-            existingAircraft.movingMarker.setRotationAngle(existingAircraft.head + 135); // +135 rotate for given icon
+            existingAircraft.movingMarker.setRotationAngle(existingAircraft.head + 315); // +315 rotate for given icon
         }
 
         if (selectedAircraft != undefined) { //if there is a selected aircraft-
@@ -333,8 +354,13 @@ function updateAircraftData(data) {
             let ewVelocity = aircraftData.ew_velocity * (2 * aircraftData.ew_dir - 1);  //this just makes it -1 or 1
             aircraftData.heading = Math.atan2(ewVelocity, nsVelocity) * 180 / Math.PI;
             if (aircraftData.heading < 0) {
-                aircraftData.heading += 360 // turn negatives into positives
-            }
+                aircraftData.heading += 360; // turn negatives into positives
+            } 
+            // fix heading by 180
+            aircraftData.heading += 180;
+            if (aircraftData.heading >= 360) {
+                aircraftData.heading -= 360;
+            }           
         }
     }
 

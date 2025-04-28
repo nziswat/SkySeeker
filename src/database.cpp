@@ -65,7 +65,7 @@ void Database::saveAircraftData(const std::string& icao, const std::string& lat,
     }
 }
 
-void Database::loadAllAircraftData() {
+void Database::debugLoadAllAircraftData() {
     const char* query = "SELECT icao, timestamp, latitude, longitude FROM AircraftData;";
     sqlite3_stmt* stmt;
 
@@ -85,6 +85,52 @@ void Database::loadAllAircraftData() {
 
     sqlite3_finalize(stmt);
 }
+
+void Database::loadAllAircraftData(std::string& message) {
+    const char* query = "SELECT icao, timestamp, latitude, longitude FROM AircraftData;";
+    sqlite3_stmt* stmt;
+    nlohmann::json handoverArray = nlohmann::json::array();
+
+    if (sqlite3_prepare_v2(db, query, -1, &stmt, nullptr) != SQLITE_OK) {
+        dbPrint("Failed to fetch data: " + std::string(sqlite3_errmsg(db)));
+        return;
+    }
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        nlohmann::json j; // struct to json for js handling
+        std::string icao = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        std::string timestamp = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        std::string latitude = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+        std::string longitude = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+        j["icao"] = icao;
+        j["timestamp"] = timestamp;
+        j["latitude"] = latitude;
+        j["longitude"] = longitude;
+        handoverArray.push_back(j);
+    }
+    message = handoverArray.dump();
+    sqlite3_finalize(stmt);
+}
+
+void Database::deleteAllAircraftData() {
+    const char* query = "DELETE FROM AircraftData;";
+    sqlite3_stmt* stmt;
+
+    if (sqlite3_prepare_v2(db, query, -1, &stmt, nullptr) != SQLITE_OK) {
+        dbPrint("Failed to prepare delete: " + std::string(sqlite3_errmsg(db)));
+        return;
+    }
+
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        dbPrint("Failed to execute delete: " + std::string(sqlite3_errmsg(db)));
+    }
+    else {
+        dbPrint("All aircraft data deleted.");
+    }
+
+    sqlite3_finalize(stmt);
+}
+
 //update this later to return actual information on it, for now as long as return > 1, it's in the DB
 int Database::findAircraftByICAO(const std::string& icaoToFind) {
     const char* query = "SELECT icao, timestamp, latitude, longitude FROM AircraftData WHERE icao = ?;";
@@ -129,6 +175,7 @@ Database& Database::getInstance(const std::string& dbPath) {
             instance = nullptr;
         }
     }
-    dbPrint("getting database instance");
+    //dbPrint("getting database instance");
+    //TODO: save as ref in relevant part (map javascript)
     return *instance;
 }

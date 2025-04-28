@@ -7,7 +7,10 @@ class Aircraft {
     // Constructor function to build Aircraft object
     constructor(ID) {
         this._ID = ID;
-        this._saved = false;
+        this._saved = false; // saved to database
+        this.ghostTimeout = null;
+        this.ghostTimeout = setTimeout(() => this.ghostAircraft(), 6000);
+        this.deleteTimeout = null;
     }
 
     // Getters and Setters
@@ -73,7 +76,7 @@ class Aircraft {
     get newestIsOdd() { return this._newestIsOdd; }
 
 
-    // Save lasr calculated lat and long in case of overriding incorrect first position
+    // Save last calculated lat and long in case of overriding incorrect first position
     set prev_lat(prev_lat) { this._prev_lat = prev_lat; }
     get prev_lat() { return this._prev_lat; }
 
@@ -83,6 +86,16 @@ class Aircraft {
     // saved
     set saved(saved) { this._saved = saved; }
     get saved() { return this._saved; }
+
+    // model
+    set model(model) { this._model = model; }
+    get model() { return this._model; }
+
+    // country of origin
+    set country(country) { this._country = country; }
+    get country() { return this._country; }
+
+
 
 
     // https://airmetar.main.jp/radio/ADS-B%20Decoding%20Guide.pdf
@@ -225,26 +238,91 @@ class Aircraft {
         return true;
     }
 
+    /* The NL function uses the precomputed table from 1090-WP-9-14 */
+    NL(lat) {
+        if (lat < 0) lat = -lat; /* Table is symmetric about the equator. */
+        if (lat < 10.47047130) return 59;
+        if (lat < 14.82817437) return 58;
+        if (lat < 18.18626357) return 57;
+        if (lat < 21.02939493) return 56;
+        if (lat < 23.54504487) return 55;
+        if (lat < 25.82924707) return 54;
+        if (lat < 27.93898710) return 53;
+        if (lat < 29.91135686) return 52;
+        if (lat < 31.77209708) return 51;
+        if (lat < 33.53993436) return 50;
+        if (lat < 35.22899598) return 49;
+        if (lat < 36.85025108) return 48;
+        if (lat < 38.41241892) return 47;
+        if (lat < 39.92256684) return 46;
+        if (lat < 41.38651832) return 45;
+        if (lat < 42.80914012) return 44;
+        if (lat < 44.19454951) return 43;
+        if (lat < 45.54626723) return 42;
+        if (lat < 46.86733252) return 41;
+        if (lat < 48.16039128) return 40;
+        if (lat < 49.42776439) return 39;
+        if (lat < 50.67150166) return 38;
+        if (lat < 51.89342469) return 37;
+        if (lat < 53.09516153) return 36;
+        if (lat < 54.27817472) return 35;
+        if (lat < 55.44378444) return 34;
+        if (lat < 56.59318756) return 33;
+        if (lat < 57.72747354) return 32;
+        if (lat < 58.84763776) return 31;
+        if (lat < 59.95459277) return 30;
+        if (lat < 61.04917774) return 29;
+        if (lat < 62.13216659) return 28;
+        if (lat < 63.20427479) return 27;
+        if (lat < 64.26616523) return 26;
+        if (lat < 65.31845310) return 25;
+        if (lat < 66.36171008) return 24;
+        if (lat < 67.39646774) return 23;
+        if (lat < 68.42322022) return 22;
+        if (lat < 69.44242631) return 21;
+        if (lat < 70.45451075) return 20;
+        if (lat < 71.45986473) return 19;
+        if (lat < 72.45884545) return 18;
+        if (lat < 73.45177442) return 17;
+        if (lat < 74.43893416) return 16;
+        if (lat < 75.42056257) return 15;
+        if (lat < 76.39684391) return 14;
+        if (lat < 77.36789461) return 13;
+        if (lat < 78.33374083) return 12;
+        if (lat < 79.29428225) return 11;
+        if (lat < 80.24923213) return 10;
+        if (lat < 81.19801349) return 9;
+        if (lat < 82.13956981) return 8;
+        if (lat < 83.07199445) return 7;
+        if (lat < 83.99173563) return 6;
+        if (lat < 84.89166191) return 5;
+        if (lat < 85.75541621) return 4;
+        if (lat < 86.53536998) return 3;
+        if (lat < 87.00000000) return 2;
+        else return 1;
+    }
+    /* Actual calculation, not in use because it takes a lot more processing than using a table
     // Calculate the number of longitude zones
     NL(lat) {
         let a = 1 - Math.cos(Math.PI / (30))
         let b = Math.cos((Math.PI/180) * lat)**2
         let c = Math.acos(1 - a/b)
         return Math.floor(( 2 * Math.PI )/c)
-    }
+    } */
     //function to call to database to get more info on aircraft (if possible)
     checkICAOData() {
-    console.log(`Trying to check ICAO data for ${this.ID}`);
     let query_string = `getICAOData${this.ID}`;
-    window.cefQuery({
-        request: query_string,
-        onSuccess: function (response) {
-            console.log("ICAO DATA GET!" + response);
-        },
-        onFailure: function (error_code, error_message) {
-            console.error("Literally could not get the frickin data wtf kevin", error_code, error_message);
-        }
-    });
+        window.cefQuery({
+            request: query_string,
+            onSuccess: (response) => {
+                let parse = JSON.parse(response);
+                this.model = parse.typeCode;
+                this.country = parse.country;
+            },
+            onFailure: (error_code, error_message) => {
+                console.error("Query failed", error_code, error_message);
+            }
+        });
     }
     //save aircraft to DB
     save() {
@@ -263,6 +341,7 @@ class Aircraft {
             }
         });
     }
+    // check if aircraft is in database
     checkSaved() {
         let query_string = `lodAircraft${this.ID}`;
         window.cefQuery({
@@ -278,90 +357,40 @@ class Aircraft {
 
 
     }
+    //function to ghost aircraft after 60 seconds
+    ghostAircraft() {
+        if (this.movingMarker) { 
+            this.movingMarker.setOpacity(0.25);
+        }
+        this.deleteTimeout = setTimeout(() => this.deleteAircraft(), 60000);
+
+    }
+    //interrupt timer
+    interruptTimer() {
+        clearTimeout(this.ghostTimeout); // clear first timeout and reset
+        this.ghostTimeout = setTimeout(() => this.ghostAircraft(), 60000);
+        if (this.movingMarker) {
+            this.movingMarker.setOpacity(1);
+        }
+        clearTimeout(this.deleteTimeout);
+    }
+    deleteAircraft() {
+        vaporize(this.ID);
+        hashMap.delete(this.ID);
+        if (this.movingMarker) {
+            this.movingMarker.remove();
+        }
+        if (this.polyline) {
+            this.polyline.remove();
+        }
+    }
+
 
 
 }
 
-// Function to update Aircraft/flight info
-function receiveSignal(map, ID, lat, long, head, alt, speed, fflag) {
-
-    // If it does not exist, create a new aircraft object
-    if (hashMap.get(ID) == undefined) {
-
-        // Create new aircraft object
-        let newAircraft = new Aircraft(ID);
-        newAircraft.checkSaved(); //see if it's been saved to the database
-
-        // Insert it into the hash map
-        hashMap.set(ID, newAircraft);
-
-        // Check if lat and long are defined
-        if ((lat != undefined) && (long != undefined)) {
-            newAircraft.updateLatLong(lat, long, fflag);
-        }
-        //console.log("Updated Aircraft Data3:", "icao:", newAircraft.ID, "lat:", newAircraft.lat, "long:", newAircraft.long,
-        //    "head:", newAircraft.head, "alt:", newAircraft.alt, "speed:", newAircraft.speed);
-
-    }
-    // If it does exist, update the aircraft object
-    else {
-        let existingAircraft = hashMap.get(ID);
-        let properties = { head, alt, speed };
-        for (let key in properties) {
-            if (properties[key] != undefined) {
-                existingAircraft[key] = properties[key];  // Correct property update
-            }
-        }
-
-        // Check if lat and long are defined
-        if ((lat != undefined) && (long != undefined)) {
-            // Try to update them
-            existingAircraft.updateLatLong(lat, long, fflag);
-        }
-
-
-        // Update the movingMarker and polyline
-        if ((existingAircraft.lat != undefined) && (existingAircraft.long != undefined)) {
-
-            // If moving marker and polyline are undefined, initialize them
-            if (existingAircraft.movingMarker == undefined) {
-                // Initialize moving marker if heading is known
-                if (existingAircraft.head != undefined) {
-                    existingAircraft.movingMarker = L.Marker.movingMarker(
-                        [[existingAircraft.lat, existingAircraft.long]], [0], { icon: planeIcon }
-                    ).addTo(map);
-                    if (existingAircraft.saved == true) {
-                        existingAircraft.movingMarker.setIcon(savedIcon);
-                    }
-
-                    existingAircraft.movingMarker.on('click', function (e) { //binds clicking the marker to the click function
-                        aircraftClick(e, existingAircraft);
-                    });
-                }
-                // Create a polyline to track the plane's path
-                existingAircraft.polyline = L.polyline([[existingAircraft.lat, existingAircraft.long]], { color: 'blue', opacity: 0 }).addTo(map);
-            }
-            // Otherwise, just update the movingMarker and polyline like normal
-            else {
-                existingAircraft.movingMarker.setLatLng([existingAircraft.lat, existingAircraft.long]);
-                existingAircraft.polyline.addLatLng([existingAircraft.lat, existingAircraft.long]);
-            }
-        }
-        if ((head != undefined) && (existingAircraft.movingMarker != undefined)) { //???: couldn't this be moved?
-            existingAircraft.movingMarker.setRotationAngle(existingAircraft.head +135); // +135 rotate for given icon
-        }
-
-        if (selectedAircraft != undefined){ //if there is a selected aircraft-
-        if (existingAircraft.ID == selectedAircraft.ID) {//-that is the same as the new information we just got-
-            updateDetailTable(existingAircraft);//be sure to update the table
-        }
-        }
-        //console.log("Updated Aircraft Data3:", "icao:", existingAircraft.ID, "lat:", existingAircraft.lat, "long:", existingAircraft.long,
-        //   "head:", existingAircraft.head, "alt:", existingAircraft.alt, "speed:", existingAircraft.speed);
-    }
-        
-}
-function formatToSixChars(num) {// minor helper function to force 6 chars (for query)
+// minor helper function to force 6 chars (for query)
+function formatToSixChars(num) {
     let str = num.toFixed(6);          
     str = parseFloat(str).toString();  
     if (str.length > 6) {

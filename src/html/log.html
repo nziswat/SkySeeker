@@ -6,6 +6,9 @@
     <link rel="stylesheet" href="https://use.typekit.net/xop8trk.css">
     <title>Log Page</title>
     <link rel="stylesheet" href="style.css">
+    <script src="log.js" defer></script>
+    <script src="main.js" defer></script>
+    <script src="aircraft.js" defer></script>
     <style>
 
         /* Cards Section */
@@ -13,41 +16,44 @@
         .card {
             z-index: 0;
             background-color: #f8f8f8;
-            width: 500px;
-            height: 700px;
+            width: 26.04%; /* approx 500px for 1920 x 1080 */
+            height: auto;
+            aspect-ratio: 5/7;
             border-radius: 30px;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
             display: flex;
             flex-direction: column; /* Stack content vertically */
             justify-content: flex-start; /* Align to the top */
-            font-size: 1.5em;
+            font-size: 2em;
             font-weight: bold;
             color: #333;
             text-align: center;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             cursor: pointer;
-            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            /*font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;*/
+            font-family: Consolas, 'Courier New', monospace; /* Monospace font for now to neatly allign data */
             padding: 20px;
         }
 
         .card-img {
-            width: 100%;  /* Makes the image stretch to fit the card's width */
-            height: 200px; /* Fixed height for the image */
+            width: 100%; /* Makes the image stretch to fit the card's width */
+            height: auto; /* Fixed height for the image */                                 /* why is this fixed im changing it, was 200px */
             object-fit: cover; /* Ensures the image covers the area (may crop if aspect ratio doesn't match) */
             border-radius: 10px;
             margin-bottom: 50px; /* Adds space between the image and text */
         }
 
         .card-text {
-            list-style-type: disc; /* Creates bullet points */
+            list-style-type: none; /* Removes bullet points */
             padding-left: 20px; /* Adds indentation for the list */
             text-align: left; /* Aligns the text to the left for readability */
             color: #555;
+            white-space: pre; /* Makes white space exactly how you typed, allowing you to put multiple spaces */
         }
 
-        .card-text li {
-            margin-bottom: 10px; /* Adds spacing between list items */
-        }
+            .card-text li {
+                margin-bottom: 10px; /* Adds spacing between list items */
+            }
 
         .card:hover {
             transform: translateY(-5px);
@@ -62,12 +68,17 @@
             padding: 20px;
         }
 
-    
-        .cards-container a .card {
-        width: 100%;
-        }
 
-       
+            .cards-container a .card {
+                width: 100%;
+            }
+
+            /* Makes text no longer underlined, which occurs as 'a' has that as default */
+            .cards-container a {
+                text-decoration: none;
+                color: inherit;
+            }
+
 
     </style>
 </head>
@@ -112,46 +123,57 @@
     </div>
 
 
-   <!-- Cards Section -->
-<br><br>
-<div class="cards-container">
-    <a href="logexp.html" class="card">
-        <img src="media/beluga.jpg" alt="Card Image" class="card-img">
-        <ul class="card-text">
-            <h>Beluga Airbus</h>
-            <br><br>
-            <li>Sample: Content 1</li>
-            <li>Sample: Content 2</li>
-            <li>Sample: Content 3</li>
-            <li>Sample: Content 4</li>
-        </ul>
-    </a>
+    <!-- Cards Section -->
+    <br><br>
+    <div id="cards-container"></div>
+    <!--
+    <div class="cards-container">
+        <a href="logexp.html" class="card">
+            <img src="media/beluga.jpg" alt="Card Image" class="card-img">
+            <ul class="card-text">
+                <h>Beluga Airbus</h>
+                <br>
+                <br>
+                <li>Sample: Content 1</li>
+                <li>Sample: Content 2</li>
+                <li>Sample: Content 3</li>
+                <li>Sample: Content 4</li>
+            </ul>
+        </a>
 
-    <a href="logexp.html" class="card">
-        <img src="media/global-7500.jpg" alt="Card Image" class="card-img">
-        <ul class="card-text">
-            <h>Bombardier Global 7500</h>
-            <br><br>
-            <li>Sample: Content 1</li>
-            <li>Sample: Content 2</li>
-            <li>Sample: Content 3</li>
-            <li>Sample: Content 4</li>
-        </ul>
-    </a>
+        <a href="logexp.html" class="card">
+            <img src="media/global-7500.jpg" alt="Card Image" class="card-img">
+            <ul class="card-text">
+                <h>Bombardier Global 7500</h>
+                <br>
+                <br>
+                <li>Sample: Content 1</li>
+                <li>Sample: Content 2</li>
+                <li>Sample: Content 3</li>
+                <li>Sample: Content 4</li>
+            </ul>
+        </a>
 
-    <a href="logexp.html" class="card">
-        <img src="media/737max9.png" alt="Card Image" class="card-img">
-        <ul class="card-text">
-            <h>Boeing 737 MAX9</h>
-            <br><br>
-            <li>Sample: Content 1</li>
-            <li>Sample: Content 2</li>
-            <li>Sample: Content 3</li>
-            <li>Sample: Content 4</li>
-        </ul>
-    </a>
-</div>
+        <a href="logexp.html" class="card">
+            <img src="media/737max9.png" alt="Card Image" class="card-img">
+            <ul class="card-text">
+                <h>Boeing 737 MAX9</h>
+                <br>
+                <br>
+                <li>Sample: Content 1</li>
+                <li>Sample: Content 2</li>
+                <li>Sample: Content 3</li>
+                <li>Sample: Content 4</li>
+            </ul>
+        </a>
+    </div>
+    -->
+    <script>
 
+
+    </script>
 
 </body>
+
+
 </html>
