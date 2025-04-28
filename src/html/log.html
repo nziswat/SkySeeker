@@ -24,13 +24,14 @@
             display: flex;
             flex-direction: column; /* Stack content vertically */
             justify-content: flex-start; /* Align to the top */
-            font-size: 1.5em;
+            font-size: 2em;
             font-weight: bold;
             color: #333;
             text-align: center;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             cursor: pointer;
-            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            /*font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;*/
+            font-family: Consolas, 'Courier New', monospace; /* Monospace font for now to neatly allign data */
             padding: 20px;
         }
 
@@ -43,10 +44,11 @@
         }
 
         .card-text {
-            list-style-type: disc; /* Creates bullet points */
+            list-style-type: none; /* Removes bullet points */
             padding-left: 20px; /* Adds indentation for the list */
             text-align: left; /* Aligns the text to the left for readability */
             color: #555;
+            white-space: pre; /* Makes white space exactly how you typed, allowing you to put multiple spaces */
         }
 
             .card-text li {
@@ -70,6 +72,14 @@
             .cards-container a .card {
                 width: 100%;
             }
+
+            /* Makes text no longer underlined, which occurs as 'a' has that as default */
+            .cards-container a {
+                text-decoration: none;
+                color: inherit;
+            }
+
+
     </style>
 </head>
 <body>

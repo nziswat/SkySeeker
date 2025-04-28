@@ -1,11 +1,12 @@
 // functions for loading aircraft from database and displaying relevant data in the log.
 
-function loadDatabase() {
+function loadDatabase(callback) {
     window.cefQuery({
         request: "loadDatabase",
         onSuccess: (response) => {
             let parse = JSON.parse(response);
             console.log(parse)
+           callback(parse);
         },
         onFailure: function (error_code, error_message) {
             console.log("yeah failed lol")
@@ -15,6 +16,7 @@ function loadDatabase() {
 
 
 
+// TWO IDEAS, format database into similar way of mockDatabase or just access it directly (probably doing this)
 
 
 // Fills the log with all of the saved planes
@@ -125,7 +127,7 @@ function createCard(aircraft) {
     // Image, maybe get rid of, doing same image for all for now
     const img = document.createElement("img");
     img.src = "media/737max9.png";
-    img.alt = `${aircraft.name} Image`;
+    img.alt = `${aircraft.icao} Image`;
     img.className = "card-img";
 
 
@@ -136,10 +138,55 @@ function createCard(aircraft) {
     title.textContent = aircraft.model;
     textList.appendChild(title);
 
-    textList.appendChild(document.createElement("br")); // idk why these are here tbh
-    textList.appendChild(document.createElement("br"));
+    // Ok this just adds empty space and kinda makes it look weird
+    //textList.appendChild(document.createElement("br")); // idk why these are here tbh
+    //textList.appendChild(document.createElement("br"));
 
     // Add the rest of the info to a list
+
+    // ICAO
+
+    const icaoItem = document.createElement("li");
+    icaoItem.textContent = `ICAO: ${aircraft.icao}`;
+    textList.appendChild(icaoItem);
+
+    // Date & Time setup
+    let parts = aircraft.timestamp.split(" "); // Split the timestamp into date and time
+
+    let date = parts[0]; // First part is the date
+    let time = parts[1]; // Second part is the time
+
+    // Date
+    const dateItem = document.createElement("li");
+    dateItem.textContent = `Date: ${date}`;
+    textList.appendChild(dateItem);
+
+    // Time
+    const timeItem = document.createElement("li");
+    timeItem.textContent = `Time: ${time}`;
+    textList.appendChild(timeItem);
+
+    // Latitude
+    const latItem = document.createElement("li");
+    latItem.textContent = `Lat:  ${aircraft.latitude}`;
+    textList.appendChild(latItem);
+
+    // Longitude
+    const longItem = document.createElement("li");
+    longItem.textContent = `Long: ${aircraft.longitude}`;
+    textList.appendChild(longItem);
+
+    // Country
+    const countryItem = document.createElement("li");
+    countryItem.textContent = `Country: NEED TSV`;
+    textList.appendChild(countryItem);
+
+    // Military
+    const militaryItem = document.createElement("li");
+    militaryItem.textContent = `Military: NEED TSV`;
+    textList.appendChild(militaryItem);
+
+    /*
     const { icao, date, time, lat, long, country, isMilitary } = aircraft;
     const content = { icao, date, time, lat, long, country, isMilitary }
     for (const [key, value] of Object.entries(content)) {
@@ -147,6 +194,7 @@ function createCard(aircraft) {
         listItem.textContent = `${key}: ${value}`;
         textList.appendChild(listItem);
     }
+    */
     // Add the image to the card
     card.appendChild(img);
     // Add the list to the card
@@ -172,7 +220,10 @@ function renderCards(data) {
     });
 }
 
-renderCards(mockDatabase);
+loadDatabase(function(database) {
+    console.log("Database loaded", database);
+    renderCards(database);
+});
 
 
 //debug functions
