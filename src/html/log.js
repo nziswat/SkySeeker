@@ -87,12 +87,12 @@ async function createCard(aircraft) {
 
         ICAOlog(aircraft.icao);
 
-
         // Date & Time setup
         let parts = aircraft.timestamp.split(" "); // Split the timestamp into date and time
 
         let date = parts[0]; // First part is the date
         let time = parts[1]; // Second part is the time
+
 
         // Date
         const dateItem = document.createElement("li");
@@ -162,7 +162,7 @@ async function renderCards(data) {
     //container.innerHTML = ""; // Clear any existing cards // IDK what this does??
     let row;
     for (let index = 0; index < data.length; index++) {
-        const aircraft = data[index];
+        const aircraft = data[data.length - index - 1];
         if (index % 3 === 0) {
             row = document.createElement("div");
             row.className = "cards-container";
