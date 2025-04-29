@@ -77,14 +77,12 @@
         <table id="liveAircraftTable">
             <thead>
                 <tr>
-                    <th>Flight Number</th>
-                    <th>ICAO</th>
-                    <th>Heading</th>
-                    <th>Altitude</th>
-                    <th>Speed</th>
-                    <th>Latitude</th>
-                    <th>Longitude</th>
-                    <th>Country of Origin</th>
+                <th>ICAO</th>
+                <th>Heading</th>
+                <th>Altitude</th>
+                <th>Speed</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -115,18 +113,13 @@
             aircraftArray.forEach(ac => {
                 const row = document.createElement("tr");
                 const data = [
-                
-                     ac.flightNumber || 'Unknown',   // new
-                     ac.ID,
-                     ac.head !== undefined ? ac.head.toFixed(0) : 'N/A',
-                     ac.alt !== undefined ? ac.alt : 'N/A',
-                     ac.speed !== undefined ? ac.speed.toFixed(0) : 'N/A',
-                     ac.lat.toFixed(3),
-                     ac.long.toFixed(3),
-                     ac.country || 'Unknown',        // new
-                     
-            ];
-
+                    ac.ID,
+                    ac.head !== undefined ? ac.head.toFixed(0) : 'N/A',
+                    ac.alt !== undefined ? ac.alt : 'N/A',
+                    ac.speed !== undefined ? ac.speed.toFixed(0) : 'N/A',
+                    ac.lat.toFixed(3),
+                    ac.long.toFixed(3)
+                ];
 
                 data.forEach((value, index) => {
                     const td = document.createElement("td");
@@ -159,41 +152,31 @@
             }
   
             const fakeAircraft = [
-    {
-        ID: "ABC123",
-        head: 270,
-        alt: 30000,
-        speed: 480,
-        lat: 27.95,
-        long: -82.46,
-        country: "USA",
-        flightNumber: "AA123",
-        
-    },
-    {
-        ID: "XYZ789",
-        head: 90,
-        alt: 38000,
-        speed: 520,
-        lat: 27.93,
-        long: -82.45,
-        country: "Germany",
-        flightNumber: "LH789",
-        
-    },
-    {
-        ID: "LMN456",
-        head: 180,
-        alt: 25000,
-        speed: 400,
-        lat: 28.01,
-        long: -82.5,
-        country: "Canada",
-        flightNumber: "AC456",
-       
-    }
-];
-
+            {
+                ID: "ABC123",
+                head: 270,
+                alt: 30000,
+                speed: 480,
+                lat: 27.95,
+                long: -82.46
+            },
+            {
+                ID: "XYZ789",
+                head: 90,
+                alt: 38000,
+                speed: 520,
+                lat: 27.93,
+                long: -82.45
+            },
+            {
+                ID: "LMN456",
+                head: 180,
+                alt: 25000,
+                speed: 400,
+                lat: 28.01,
+                long: -82.5
+            }
+            ];
   
             fakeAircraft.forEach(ac => {
             hashMap.set(ac.ID, ac);

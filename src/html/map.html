@@ -14,272 +14,87 @@
     <link rel="stylesheet" href="leaflet/leaflet.css" />
     <link rel="stylesheet" href="style.css">
 
-    <!-- Leaflet and Plugins -->
+    <!-- Script for map and plugin -->
     <script src="leaflet/leaflet.js"></script>
     <script src="MovingMarker.js"></script>
     <script src="rotatedMarker.js"></script>
 
-    <!-- Your scripts -->
-    <script src="main.js"></script>
-    <script src="aircraft.js"></script>
-    <script src="simulation.js"></script>
+    <!-- My scripts -->
+    <script src="main.js"></script> <!-- Main Script -->
+    <script src="aircraft.js"></script> <!-- Aircraft class -->
+    <script src="simulation.js"></script> <!-- Simulation logic -->
 
     <style>
-        /* General Reset */
+
+
+
+        /* Ensure the map container has height */
         body, html {
             margin: 0;
             padding: 0;
             height: 100vh;
-            display: flex;
-            flex-direction: column;
+            display: flex; /* Fill the rest of the height */
+            flex-direction: column; /* Fill the rest of the height */
         }
 
-        /* Map full size */
+
         #map {
             width: 100%;
-            height: 100vh;
+            height: 100vh; /* Full screen height */
         }
 
         .leaflet-container {
             opacity: 0.8;
-            flex: 1;
+            flex: 1; /* Fill the rest of the height */
         }
 
-        /* HEADER */
-        .header {
-            position: fixed;
-            z-index: 3;
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            background-color: #333;
-            padding: 0px 20px;
-            color: white;
-            min-height: 20px;
-            width: 100%;
-            font-family: "amaranth", sans-serif;
-            font-weight: 700;
-        }
 
-        .header-spacer {
-            position: static;
-            z-index: -1;
-        }
-
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-left: 20px;
-        }
-
-        .header-title {
-            margin: 0;
-            font-size: 3em;
-        }
-
-        .header-gif {
-            height: 80px;
-            width: auto;
-        }
-
-        /* BUTTON CONTAINER */
-        .button-container {
-            display: flex;
-            justify-content: space-evenly;
-            flex: 1;
-            flex-direction: row;
-            width: 100vh;
-        }
-
-        .button, .button1 {
-            padding: 10px 50px;
-            background-color: #0077b6;
-            border: none;
-            color: white;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 150%;
-            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-        }
-
-        .button:hover {
-            background-color: #495e76;
-        }
-
-        .button:active {
-            background-color: white;
-            color: #79a5b4;
-        }
-
-        .button1 {
-            background-color: #414b58;
-            color: grey;
-        }
-
-        /* SUBHEADER */
-        .subheader {
-            position: fixed;
-            z-index: 3;
-            top: 80px;
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            background-color: #d8d8d8;
-            padding: 10px 40px;
-            color: rgb(80, 80, 80);
-            border-bottom: 1px solid rgb(116, 115, 115);
-            min-height: 20px;
-            width: 100%;
-            gap: 20px;
-            font-family: "amaranth", sans-serif;
-            font-weight: 700;
-        }
-
-        .categories-title {
-            font-size: 1.6em;
-            font-weight: bold;
-            margin: 0;
-        }
-
-        .categories-container {
-            display: flex;
-            flex-direction: row;
-            gap: 10%;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-        }
-
-        .catbutton {
-            padding: 10px 50px;
-            background-color: #ffffff;
-            border: none;
-            color: rgb(80, 80, 80);
-            cursor: pointer;
-            border-radius: 12px;
-            font-size: 100%;
-            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-        }
-
-        .catbutton:hover {
-            background-color: #e0c2b2;
-        }
-
-        .catbutton:active {
-            background-color: #ff7a33;
-        }
-
-        /* FLOATING TABLES - MODERN */
-        #detailTable, #aircraftTable {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(10px);
-            padding: 15px;
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-            font-family: 'Segoe UI', sans-serif;
-            color: #333;
-        }
-
-        /* Positioning */
+        /* Floating table on the left side */
         #detailTable {
             position: absolute;
             top: 300px;
             left: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             z-index: 1000;
             cursor: move;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
         }
-
         #aircraftTable {
             position: absolute;
             top: 300px;
             right: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             z-index: 1000;
             cursor: grab;
-        }
-
-        /* Inner tables */
-        #detailTable table, #aircraftTable table {
-            width: 100%;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
             border-collapse: collapse;
+            width: fit-content;
+        }
+        table {
+            border-collapse: collapse;
+            width: 200px;
         }
 
-        #detailTable th, #detailTable td,
-        #aircraftTable th, #aircraftTable td {
-            padding: 12px 16px;
-            text-align: center;
-            font-size: 16px;
+        th, td {
+            border: 1px solid black;
+            padding: 5px;
+            text-align: left;
         }
 
-        #detailTable th, #aircraftTable th {
-            background: linear-gradient(135deg, #0077b6, #0096c7);
-            color: white;
-            font-weight: bold;
+        th {
+            background: #ddd;
         }
 
-        #detailTable tbody tr:nth-child(even) td,
-        #aircraftTable tbody tr:nth-child(even) td {
-            background: rgba(245, 245, 245, 0.6);
-        }
 
-        #detailTable tbody tr:hover td,
-        #aircraftTable tbody tr:hover td {
-            background: rgba(0, 119, 182, 0.2);
-            cursor: pointer;
-            transition: 0.3s ease;
-        }
-
-        /* Fade-in Animation */
-        @keyframes fadeInUp {
-            from {
-                transform: translateY(30px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        /* Mobile Responsive */
-        @media (max-width: 1024px) {
-            .header, .header-spacer {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-                padding: 10px;
-            }
-
-            .logo-container {
-                margin-left: 0;
-                justify-content: center;
-                width: 100%;
-            }
-
-            .header-title {
-                font-size: 2em;
-            }
-
-            .header-gif {
-                height: 60px;
-            }
-
-            .button-container {
-                flex-direction: column;
-                align-items: center;
-                width: 100%;
-            }
-
-            .button {
-                width: 90%;
-                font-size: 120%;
-                padding: 10px 20px;
-                margin-bottom: 10px;
-            }
-        }
+        
     </style>
 </head>
-
 <body>
     <!-- Header -->
     <header id="header" class="header">
@@ -297,7 +112,7 @@
     <!-- Header Spacer -->
     <div id="header-spacer" style="display: block; width: 100%;"></div>
 
-    <!-- Subheader -->
+    <!-- Sub Header-->
     <div id="subheader" class="subheader">
         <h2 class="categories-title">Functions:</h2>
         <div class="categories-container">
@@ -306,75 +121,78 @@
         </div>
     </div>
 
-    <!-- Detail Table -->
-    <div id="detailTable" class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Property</th>
-                    <th>
-                        Value
-                        <button onclick="toggleDetailTable()" id="toggleButton" style="margin-left: 20px;">-</button>
-                    </th>
-                </tr>
-            </thead>
-            <tbody style="display: table-row-group;">
-                <tr><td>ICAO</td><td id="planeID"></td></tr>
-                <tr><td>Latitude</td><td id="planeLat"></td></tr>
-                <tr><td>Longitude</td><td id="planeLong"></td></tr>
-                <tr><td>Heading</td><td id="planeHead"></td></tr>
-                <tr><td>Altitude</td><td id="planeAlt"></td></tr>
-                <tr><td>Speed</td><td id="planeSpeed"></td></tr>
-                <tr><td>Model</td><td id="planeModel"></td></tr>
-                <tr><td>Country</td><td id="planeCountry"></td></tr>
-            </tbody>
-        </table>
-    </div>
+    <!-- Floating Table -->
+        <div id="detailTable" class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>
+                            Value
+                            <button onclick="toggleDetailTable()" id="toggleButton"
+                                    style="margin-left: 20px;">
+                                -
+                            </button>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody style="display: table-row-group;">
+                    <tr><td>ICAO</td><td id="planeID"></td></tr>
+                    <tr><td>Latitude</td><td id="planeLat"></td></tr>
+                    <tr><td>Longitude</td><td id="planeLong"></td></tr>
+                    <tr><td>Heading</td><td id="planeHead"></td></tr>
+                    <tr><td>Altitude</td><td id="planeAlt"></td></tr>
+                    <tr><td>Speed</td><td id="planeSpeed"></td></tr>
+                    <tr><td>Model</td><td id="planeModel"></td></tr>
+                    <tr><td>Country</td><td id="planeCountry"></td></tr>
+                </tbody>
+            </table>
+        </div>
 
-    <!-- Aircraft Table -->
-    <div id="aircraftTable" class="table-container"></div>
+        <!-- Table of All Aircraft -->
+        <div id="aircraftTable" class="table-container"></div>
 
-    <!-- Map -->
-    <div id="map"></div>
 
-    <!-- Initialization Scripts -->
-    <script>
-        window.addEventListener('load', spaceHeader);
-        window.addEventListener('resize', spaceHeader);
+        <!-- Map container -->
+        <div id="map"></div>
 
-        // Initialize Map
-        const map = initializeMap("map", [27.947954, -82.466856], 12); // Default Tampa
+        <script>
 
-        // Setup floating tables
-        createAircraftTable();
-        makeDraggable(document.getElementById('detailTable'));
-        makeDraggable(document.getElementById('aircraftTable'));
+            window.addEventListener('load', spaceHeader);
+            window.addEventListener('resize', spaceHeader);
+            // Initialize map
+            const map = initializeMap("map", [27.947954, -82.466856], 12); // Default: Tampa
+            // Initialize aircraft table
+            createAircraftTable();
+            makeDraggable(document.getElementById('detailTable'));
+            makeDraggable(document.getElementById('aircraftTable'));
+            // map boundaries
+            const bounds = L.latLngBounds(
+                L.latLng(-85, -180),  // sw corner
+                L.latLng(85, 180)     // ne corner
+            );
+            map.setMaxBounds(bounds);
+            map.on('drag', function () {
+                map.panInsideBounds(bounds, { animate: false });
+            });
 
-        // Map boundaries
-        const bounds = L.latLngBounds(
-            L.latLng(-85, -180),
-            L.latLng(85, 180)
-        );
-        map.setMaxBounds(bounds);
-        map.on('drag', function () {
-            map.panInsideBounds(bounds, { animate: false });
-        });
 
-        // Plane Icons
-        const planeIcon = L.icon({
-            iconUrl: 'media/plane-icon.svg',
-            iconSize: [40, 40],
-            iconAnchor: [20, 20]
-        });
+            // Initialize plane icon
+            const planeIcon = L.icon({
+                iconUrl: 'media/plane-icon.svg',
+                iconSize: [40, 40],
+                iconAnchor: [20, 20] // Rotate around the center of the icon
+            });
+            const savedIcon = L.icon({ // icon for saved planes
+                iconUrl: 'media/cool-icon.svg',
+                iconSize: [40, 40],
+                iconAnchor: [20, 20] // Rotate around the center of the icon
+            });
 
-        const savedIcon = L.icon({
-            iconUrl: 'media/cool-icon.svg',
-            iconSize: [40, 40],
-            iconAnchor: [20, 20]
-        });
-
-        let selectedAircraft;
-        let hashMap = new Map();
-    </script>
+            // variable used when clicking on an aircraft
+            let selectedAircraft;
+            // Initialize the hash map to store aircrafts
+            let hashMap = new Map();
+        </script>
 </body>
 </html>
