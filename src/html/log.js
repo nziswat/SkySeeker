@@ -34,24 +34,13 @@ function ICAOlog(icaoCheck) {
 
 
 
-// TWO IDEAS, format database into similar way of mockDatabase or just access it directly (probably doing this)
-
-
-// Fills the log with all of the saved planes
-
-// Note: do the cards have to be created every time this page is loaded or is there a way we could save the already created ones?
-// should the header be the model or icao ? currently model
-
-// DEMO VERSION FOR NOW IDK HOW TO ACCESS DATABASE
-// Mock data representing the database
-
 // Function to create cards
 async function createCard(aircraft) {
     try {
         const ICAOdata = await ICAOlog(aircraft.icao); // get ICAO data from the TSV
         console.log(`got data for ${aircraft.icao} is as follows ${ICAOdata}`)
         const ICAOarray = ICAOdata.split('_');
-        const type = ICAOarray[0];
+        const model = ICAOarray[0];
         const country = ICAOarray[1];
         const military = ICAOarray[2];
 
@@ -80,30 +69,27 @@ async function createCard(aircraft) {
         // Add the rest of the info to a list
 
         // ICAO
-
         const icaoItem = document.createElement("li");
         icaoItem.textContent = `ICAO: ${aircraft.icao}`;
         textList.appendChild(icaoItem);
 
         ICAOlog(aircraft.icao);
 
-
-         // Type (aka Model)
-         const typeItem = document.createElement("li");
-         if (type != "UNKNOWN") {
-             typeItem.textContent = `Model: ${type}`;
-         }
-         else {
-             typeItem.textContent = `Model: Unknown`;
-         }
-         textList.appendChild(typeItem);
+        // Model
+        const modelItem = document.createElement("li");
+        if (model != "UNKNOWN") {
+            modelItem.textContent = `Model: ${model}`;
+        }
+        else {
+            modelItem.textContent = `Model: N/A`;
+        }
+        textList.appendChild(modelItem);
 
         // Date & Time setup
         let parts = aircraft.timestamp.split(" "); // Split the timestamp into date and time
 
         let date = parts[0]; // First part is the date
         let time = parts[1]; // Second part is the time
-
 
         // Date
         const dateItem = document.createElement("li");
@@ -141,7 +127,7 @@ async function createCard(aircraft) {
             militaryItem.textContent = `Military: ${military}`;
         }
         else {
-            militaryItem.textContent = `N/A`;
+            militaryItem.textContent = `Military: N/A`;
         }
         textList.appendChild(militaryItem);
 
