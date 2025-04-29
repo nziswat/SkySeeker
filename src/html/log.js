@@ -87,6 +87,17 @@ async function createCard(aircraft) {
 
         ICAOlog(aircraft.icao);
 
+
+         // Type (aka Model)
+         const typeItem = document.createElement("li");
+         if (type != "UNKNOWN") {
+             typeItem.textContent = `Model: ${type}`;
+         }
+         else {
+             typeItem.textContent = `Model: Unknown`;
+         }
+         textList.appendChild(typeItem);
+
         // Date & Time setup
         let parts = aircraft.timestamp.split(" "); // Split the timestamp into date and time
 
@@ -135,7 +146,7 @@ async function createCard(aircraft) {
         textList.appendChild(militaryItem);
 
         /*
-        const { icao, date, time, lat, long, country, isMilitary } = aircraft;
+        const { icao, model, date, time, lat, long, country, isMilitary } = aircraft;
         const content = { icao, date, time, lat, long, country, isMilitary }
         for (const [key, value] of Object.entries(content)) {
             const listItem = document.createElement("li");
