@@ -66,7 +66,6 @@ public:
             std::string icao = fullReq.substr(11, 6); // icao
             std::string lat = fullReq.substr(17, 6); //lat
             std::string lon = fullReq.substr(23, 6); // long;
-            sendDebug(icao +" "+ lat +" "+ lon);
             db.saveAircraftData(icao, lat, lon);
             callback->Success(icao);
             return true;
@@ -83,7 +82,18 @@ public:
             }
             return true;
         }
-
+        if (firsthalf == "delAircraft") {// check first 10 chars
+            Database& db = Database::getInstance("collection.db"); //get the database
+            std::string icao = fullReq.substr(11, 6); // icao
+            int check = db.deleteAircraftByICAO(icao);
+            if (check > 0) {
+                callback->Success(icao);
+            }
+            else {
+                callback->Failure(1, "No matching save");
+            }
+            return true;
+        }
         return false;  // wrong query
     }
 

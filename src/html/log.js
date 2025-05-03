@@ -32,6 +32,27 @@ function ICAOlog(icaoCheck) {
     });
 }
 
+function deleteFromDatabase(aircraft) {
+    let query_string = `delAircraft${aircraft}`;
+    window.cefQuery({ // first send query to delete
+        request: query_string,
+        onSuccess: (response) => {
+            console.log(response)
+
+
+
+
+        },
+        onFailure: function (error_code, error_message) {
+            console.log("plane failed to delete for some reason")
+        }
+    });
+
+
+
+
+}
+
 
 
 // Function to create cards
@@ -45,7 +66,7 @@ async function createCard(aircraft) {
         const military = ICAOarray[2];
 
         const card = document.createElement("a");
-        card.href = "logexp.html";
+        //card.href = "logexp.html";
         card.className = "card";
 
         // Image, maybe get rid of, doing same image for all for now
@@ -131,15 +152,35 @@ async function createCard(aircraft) {
         }
         textList.appendChild(militaryItem);
 
-        /*
-        const { icao, model, date, time, lat, long, country, isMilitary } = aircraft;
-        const content = { icao, date, time, lat, long, country, isMilitary }
-        for (const [key, value] of Object.entries(content)) {
-            const listItem = document.createElement("li");
-            listItem.textContent = `${key}: ${value}`;
-            textList.appendChild(listItem);
-        }
-        */
+        // delete button
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+        deleteButton.classList.add("button"); // for style
+
+        let confirmState = false;
+
+        deleteButton.addEventListener("click", () => {
+            if (!confirmState) {
+                deleteButton.textContent = "Are you sure?";
+                confirmState = true;
+
+                // reset confirmation if not clicked again within 3 seconds
+                setTimeout(() => {
+                    deleteButton.textContent = "Delete";
+                    confirmState = false;
+                }, 3000);
+            } else {
+                deleteFromDatabase(aircraft.icao);
+                const card = deleteButton.closest(".card"); // quite humorous if you ask me
+                if (card) {
+                    card.style.display = "none";
+                }
+            }
+        });
+
+        textList.appendChild(deleteButton);
+
+
         // Add the image to the card
         card.appendChild(img);
         // Add the list to the card

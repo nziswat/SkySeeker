@@ -163,6 +163,36 @@ int Database::findAircraftByICAO(const std::string& icaoToFind) {
     return rowCount;
 }
 
+int Database::deleteAircraftByICAO(const std::string& icaoToDelete) {
+    const char* query = "DELETE FROM AircraftData WHERE icao = ?;";
+    sqlite3_stmt* stmt;
+
+    if (sqlite3_prepare_v2(db, query, -1, &stmt, nullptr) != SQLITE_OK) {
+        dbPrint("Failed to prepare DELETE statement: " + std::string(sqlite3_errmsg(db)));
+        return 0;
+    }
+
+    // Bind the ICAO value to the query
+    if (sqlite3_bind_text(stmt, 1, icaoToDelete.c_str(), -1, SQLITE_TRANSIENT) != SQLITE_OK) {
+        dbPrint("Failed to bind ICAO: " + std::string(sqlite3_errmsg(db)));
+        sqlite3_finalize(stmt);
+        return 0;
+    }
+
+    // Execute the DELETE query
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        dbPrint("Failed to delete row: " + std::string(sqlite3_errmsg(db)));
+        sqlite3_finalize(stmt);
+        return 0;
+    }
+
+    int rowsDeleted = sqlite3_changes(db);
+    dbPrint("Rows deleted: " + std::to_string(rowsDeleted));
+
+    sqlite3_finalize(stmt);
+    return 1; // deletion worked
+}
+
 
 
 

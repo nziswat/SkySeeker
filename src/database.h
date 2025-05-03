@@ -24,6 +24,7 @@ public:
     void debugLoadAllAircraftData();
     void deleteAllAircraftData();
     int findAircraftByICAO(const std::string& icaoToFind);
+    int deleteAircraftByICAO(const std::string& icaoToDelete);
 
     static Database& getInstance(const std::string& dbPath = "");
 
