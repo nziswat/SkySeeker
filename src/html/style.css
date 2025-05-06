@@ -61,6 +61,7 @@ body {
   flex: 1;
   flex-direction: row;
   width: 100vh;
+  padding: 0px 100px; /* Further adjust spacing by adding padding on ends */
 }
 
 .button {
