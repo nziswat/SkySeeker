@@ -7,6 +7,7 @@
 // Used by cefsimple.rc
 //
 
+#define IDI_APP_ICON 101
 #define IDI_CEFSIMPLE 120
 #define IDI_SMALL 121
 

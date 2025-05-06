@@ -16,6 +16,7 @@
 #include "src/RTL_interface.h"
 #include "thread"
 #include "database.h"
+#include "resource.h"
 
 int track = 0;
 
@@ -76,6 +77,22 @@ void SimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
 
 void SimpleHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
   CEF_REQUIRE_UI_THREAD();
+    #if defined(OS_WIN)
+    HWND hwnd = browser->GetHost()->GetWindowHandle();
+
+    HICON hIcon = static_cast<HICON>(LoadImage(
+    GetModuleHandle(NULL),
+    MAKEINTRESOURCE(IDI_APP_ICON),
+    IMAGE_ICON,
+    32, 32,
+    LR_DEFAULTCOLOR
+  ));
+
+  if (hIcon) {
+      SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+      SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+  }
+#endif
   // Sanity-check the configured runtime style.
   CHECK_EQ(is_alloy_style_ ? CEF_RUNTIME_STYLE_ALLOY : CEF_RUNTIME_STYLE_CHROME,
            browser->GetHost()->GetRuntimeStyle());
